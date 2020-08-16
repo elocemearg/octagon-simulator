@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Octagon Simulator</title>
+        <link rel="stylesheet" type="text/css" href="interface.css" />
+    </head>
+    <body onload="initialise();">
+        <script src="font.js"></script>
+        <script src="draw.js"></script>
+        <script src="clock.js"></script>
+        <script src="interface.js"></script>
+
+        <div id="screen">
+            <canvas id="canvas">
+        </div>
+        <div class="menu" id="menu">
+            <div id="errors"></div>
+            <div class="menuinstructions">
+                <div class="sectiontitle">Keyboard shortcuts</div>
+                <table class="menuinstructions">
+                    <tr>
+                        <td>Esc, M</td><td>Show/hide this menu</td>
+                    </tr>
+                    <tr>
+                        <td>S</td><td>Stop/start clock</td>
+                    </tr>
+                    <tr>
+                        <td>R</td><td>Reset clock</td>
+                    </tr>
+                    <tr>
+                        <td>D</td><td>Display on/off</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="menusection">
+                <div class="sectiontitle">Start time</div>
+                <div class="sectionbody">
+                    <div class="menurow">
+                        <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> minutes
+                        <input type="number" id="seconds" min="0" value="30" oninput="startTimeChanged();" /> seconds
+                    </div>
+                    <div class="menurow">
+                        <button class="clockbutton" id="start" onclick="startStop();">Start</button>
+                        <button class="clockbutton" id="reset" onclick="resetClock();">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="menusection">
+                <div class="sectiontitle">Position</div>
+                <div class="sectionbody">
+                    <div class="menurow">
+                        <select id="xposanchor" name="xposanchor" onchange="positionChanged();">
+                            <option value="left">Left edge</option>
+                            <option value="right" selected>Right edge</option>
+                        </select>
+                        <input type="number" id="xpospc" value="85" oninput="positionChanged();" />% from left of window
+                    </div>
+                    <div class="menurow">
+                        <select id="yposanchor" name="yposanchor" onchange="positionChanged();">
+                            <option value="top">Top edge</option>
+                            <option value="bottom" selected>Bottom edge</option>
+                        </select>
+                        <input type="number" id="ypospc" value="85" oninput="positionChanged();" />% from top of window
+                    </div>
+                    <div class="menurow">
+                        Final scale factor
+                        <input type="number" id="scalefactor" value="100" oninput="positionChanged();" />%
+                    </div>
+                </div>
+            </div>
+
+            <div class="menusection">
+                <div class="sectiontitle">Options</div>
+                <div class="sectionbody">
+                    <div class="menurow">
+                        <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display clock</label>
+                    </div>
+                    <div class="menurow">
+                        <input type="checkbox" id="countup" name="countup" onclick="optionsChanged();" /><label for="countup">Count up</label>
+                    </div>
+                    <div class="menurow">
+                        <input type="checkbox" id="leadingzero" name="leadingzero" onclick="optionsChanged();" /><label for="leadingzero">Leading zero</label>
+                    </div>
+                    <div class="menurow">
+                        Display format
+                        <select name="format" id="format" onchange="optionsChanged();">
+                            <option value="-1" selected>Automatic from start time</option>
+                            <option value="-2">Automatic from current time</option>
+                            <option value="1">s</option>
+                            <option value="2">ss</option>
+                            <option value="3">m:ss</option>
+                            <option value="4">mm:ss</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menusection">
+                <div class="sectiontitle">Appearance</div>
+                <div class="sectionbody">
+                    <table>
+                        <tr>
+                            <td>Background colour</td>
+                            <td><input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#8080ff" /></td>
+                        </tr>
+                        <tr>
+                            <td>Character colour</td>
+                            <td><input type="color" name="fgcolor" id="fgcolor" onchange="appearanceChanged();" value="#ffffff" /></td>
+                        </tr>
+                        <tr>
+                            <td>Outline colour</td>
+                            <td><input type="color" name="outlinecolor" id="outlinecolor" onchange="appearanceChanged();" value="#000000" /></td>
+                        </tr>
+                        <tr>
+                            <td>Outline size</td>
+                            <td><input type="number" name="outlinesize" id="outlinesize" oninput="appearanceChanged();" value="1" min="0" max="10" /></td>
+                        </tr>
+                        <tr>
+                            <td>Shadow length</td>
+                            <td><input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="10" /></td>
+                        </tr>
+                        <tr>
+                            <td>Shadow direction</td>
+                            <td><select name="shadowdir" id="shadowdir" onchange="appearanceChanged();">
+                                <option value="0">North</option>
+                                <option value="1">Northeast</option>
+                                <option value="2">East</option>
+                                <option value="3" selected>Southeast</option>
+                                <option value="4">South</option>
+                                <option value="5">Southwest</option>
+                                <option value="6">West</option>
+                                <option value="7">Northwest</option>
+                            </select></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- <div style="position: absolute; z-index: 1;">
+            <input type="text" name="inputbox" id="inputbox" oninput="displayClock();" autofocus />
+        </div> -->
+    </body>
+</html>

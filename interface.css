@@ -1,0 +1,64 @@
+body {
+    font-family: sans-serif;
+}
+
+#screen {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+}
+
+#menu {
+    position: absolute;
+    background-color: white;
+    padding: 10px;
+    font-size: 10pt;
+    border-radius: 10px;
+}
+
+#menu input[type="number"] {
+    width: 4em;
+}
+
+div.menuinstructions {
+    margin-top: 8pt;
+}
+
+div.menusection {
+    margin-top: 8pt;
+}
+
+div.menurow {
+    margin-left: 10px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+button.clockbutton {
+    margin-top: 10px;
+    min-width: 100px;
+    height: 24pt;
+}
+
+div.sectionbody table {
+    margin-left: 10px;
+}
+
+table.menuinstructions {
+    margin-left: 10px;
+}
+
+table.menuinstructions td {
+    padding-right: 10px;
+}
+
+div.sectiontitle {
+    font-weight: bold;
+}
+
+#errors {
+    max-width: 600px;
+    color: red;
+}
