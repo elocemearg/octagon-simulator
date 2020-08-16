@@ -135,7 +135,8 @@ class Clock {
         else {
             let secondsPart = valueSeconds % 60;
             let minutesPart = Math.floor(valueSeconds / 60);
-            timeString = formatNumber(secondsPart, Math.min(minDigits, 2),
+            timeString = formatNumber(secondsPart,
+                    minutesPart > 0 ? 2 : Math.min(minDigits, 2),
                     useLeadingZero || minDigits > 2 || minutesPart > 0);
             if (minDigits > 2 || minutesPart > 0) {
                 timeString = ":" + timeString;
