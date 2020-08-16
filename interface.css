@@ -59,6 +59,11 @@ div.sectiontitle {
 }
 
 #errors {
-    max-width: 600px;
+    max-width: 400px;
     color: red;
+}
+
+div.about {
+    max-width: 400px;
+    color: gray;
 }
