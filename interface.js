@@ -263,6 +263,19 @@ function initialisePost() {
         refreshClock();
         document.addEventListener("keyup", keyListener);
         errDiv.innerText = "";
+
+        /* If the user clicks on any of the number inputs, highlight the
+         * contents if not already highlighted. */
+        let inputs = document.getElementsByTagName("input");
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].getAttribute("type") === "number") {
+                inputs[i].addEventListener("focus", function() {
+                    if (this.selectionStart == this.selectionEnd) {
+                        this.select();
+                    }
+                });
+            }
+        }
     }
     catch (err) {
         errDiv.innerText = "Exception while initialising clock: " + err.message;
