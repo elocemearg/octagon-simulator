@@ -143,29 +143,6 @@ function makeClockImage(string) {
     return imageData;
 }
 
-function copyNonTransparentPixels(destContext, srcData, xstart, ystart, overrideColour=null) {
-    let destData = destContext.getImageData(xstart, ystart, srcData.width, srcData.height);
-    let destDataPos = 0;
-    let srcDataPos = 0;
-    for (let y = 0; y < srcData.height; ++y) {
-        for (let x = 0; x < srcData.width; ++x) {
-            if (srcData.data[srcDataPos + 3] != 0) {
-                for (let i = 0; i < 4; ++i) {
-                    if (overrideColour == null || i == 3) {
-                        destData.data[destDataPos + i] = srcData.data[srcDataPos + i];
-                    }
-                    else {
-                        destData.data[destDataPos + i] = overrideColour[i];
-                    }
-                }
-            }
-            srcDataPos += 4;
-            destDataPos += 4;
-        }
-    }
-    destContext.putImageData(destData, xstart, ystart);
-}
-
 function changeNonTransparentPixelColour(imageData, newColour) {
     for (let y = 0; y < imageData.height; ++y) {
         let dataPos = y * imageData.width * 4;
@@ -231,46 +208,58 @@ function drawClock(destCanvas, string, xstart, ystart, mainColour,
     /* Get our basic clock image based on this string */
     let clockImage = makeClockImage(string);
 
+    /* Clock canvas: just the image of the numbers with no outline, padding or
+     * shadow. */
+    let clockCanvas = document.createElement("canvas");
+
+    /* Outline canvas: we'll use the clock image and stamp it onto the outline
+     * canvas several times to make an outline of the clock digits. */
     let outlineCanvas = document.createElement("canvas");
+
+    /* Finished canvas: the finished clock image with outline and shadow. */
     let finishedCanvas = document.createElement("canvas");
 
     /* Padding: make our intermediate canvases the size of the clock image,
      * plus the expected outline and shadow */
     let padding = shadowLength + outlineSize;
 
+    clockCanvas.width = clockImage.width;
+    clockCanvas.height = clockImage.height;
     outlineCanvas.width = (clockImage.width + 2 * padding);
     outlineCanvas.height = (clockImage.height + 2 * padding);
     finishedCanvas.width = outlineCanvas.width;
     finishedCanvas.height = outlineCanvas.height;
 
+    let clockContext = clockCanvas.getContext("2d");
     let outlineContext = outlineCanvas.getContext("2d");
     let finishedContext = finishedCanvas.getContext("2d");
 
     if (outlineColour != null) {
         /* Draw the outline, in outlineColour */
         changeNonTransparentPixelColour(clockImage, outlineColour);
+        clockContext.putImageData(clockImage, 0, 0);
         for (let dy = -outlineSize; dy <= outlineSize; ++dy) {
             for (let dx = -outlineSize; dx <= outlineSize; ++dx) {
-                copyNonTransparentPixels(outlineContext, clockImage,
-                        padding + dx, padding + dy, outlineColour);
+                outlineContext.drawImage(clockCanvas, padding + dx, padding + dy);
             }
         }
 
-        let outlineImage = outlineContext.getImageData(0, 0, outlineCanvas.width, outlineCanvas.height);
-        copyNonTransparentPixels(finishedContext, outlineImage, 0, 0, outlineColour);
+        /* Put the outline on the finished context */
+        finishedContext.drawImage(outlineCanvas, 0, 0);
 
         /* Draw the shadow by smearing the outline in a particular direction */
         for (let dist = 1; dist <= shadowLength; ++dist) {
-            copyNonTransparentPixels(finishedContext, outlineImage,
+            finishedContext.drawImage(outlineCanvas, 
                     directionToXY[shadowDirection][0] * dist,
-                    directionToXY[shadowDirection][1] * dist,
-                    outlineColour);
+                    directionToXY[shadowDirection][1] * dist);
         }
     }
 
-    /* Draw the actual numbers, using the main colour */
+    /* Finally, draw the actual numbers on top of the outline, using the main
+     * colour. */
     changeNonTransparentPixelColour(clockImage, mainColour);
-    copyNonTransparentPixels(finishedContext, clockImage, padding, padding);
+    clockContext.putImageData(clockImage, 0, 0);
+    finishedContext.drawImage(clockCanvas, padding, padding);
 
     if (ystartBottomEdge) {
         ystart -= finishedCanvas.height * scaleY;
@@ -279,6 +268,8 @@ function drawClock(destCanvas, string, xstart, ystart, mainColour,
         xstart -= finishedCanvas.width * scaleX;
     }
 
+    /* Now take our finished image and draw it onto the destination canvas
+     * at the desired position. */
     destContext.setTransform(scaleX, 0, 0, scaleY, 0, 0);
     destContext.drawImage(finishedCanvas, Math.floor(xstart / scaleX),
             Math.floor(ystart / scaleY));
