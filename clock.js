@@ -103,19 +103,60 @@ class Clock {
         return this.direction;
     }
 
-    formatValue(formatCode, useLeadingZero=false, secondsOnly=false) {
+    /* Get valueMs, in milliseconds, rounded appropriately for the clock
+     * direction and how many decimal places we'd show if we formatted it in
+     * seconds. So if decimalPlaces is 1 and valueMs is 2345, then if the
+     * clock is counting upwards we return 2300.
+     *
+     * Note that if the clock is counting upwards we always round down (e.g.
+     * 2.9s shows as 2 if decimalPlaces=0). If the clock is counting downwards
+     * we always round up (e.g. 2.1s shows as 3) - this is so that we only
+     * display zero when the time has actually run out. */
+    getMsToFormat(valueMs, decimalPlaces) {
+        if (decimalPlaces > 3)
+            decimalPlaces = 3;
+        if (decimalPlaces < 0)
+            decimalPlaces = 0;
+
+        let divisor = Math.pow(10, 3 - decimalPlaces);
+        if (this.direction < 0) {
+            return Math.ceil(valueMs / divisor) * divisor;
+        }
+        else {
+            return Math.floor(valueMs / divisor) * divisor;
+        }
+    }
+
+    /* formatValue: format the current value on the clock as a string.
+     *
+     * formatCode: if positive, it's the minimum number of digits to display
+     * to the left of the decimal point (or at all, if there's no decimal
+     * point). If -1, we use the minimum number of digits we'd take to show
+     * the start time, and if -2, we use the minimum number of digits we'd take
+     * to show the current time.
+     *
+     * useLeadingZero: if the most significant field we're displaying (whether
+     * that's minutes or seconds) needs to be left-padded to meet the format,
+     * it will be padded with a zero if useLeadingZero is true, or a space if
+     * it's false.
+     *
+     * secondsOnly: don't use a minutes field, just display the number of
+     * seconds, so that e.g. 3 minutes shows as "180".
+     *
+     * decimalPlaces: the number of digits to show after the decimal point.
+     * This is capped within the range 0-3. If it's 0, no decimal point is
+     * shown.
+     * */
+    formatValue(formatCode, useLeadingZero=false, secondsOnly=false, decimalPlaces=0) {
         let valueSeconds;
         let initValueSeconds;
         let minDigits;
+        let msToShow;
 
-        if (this.direction < 0) {
-            valueSeconds = Math.ceil(this.getValueMs() / 1000);
-            initValueSeconds = Math.ceil(this.initialValueMs / 1000);
-        }
-        else {
-            valueSeconds = Math.floor(this.getValueMs() / 1000);
-            initValueSeconds = Math.floor(this.initialValueMs / 1000);
-        }
+        msToShow = this.getMsToFormat(this.getValueMs(), decimalPlaces);
+
+        valueSeconds = Math.floor(msToShow / 1000);
+        initValueSeconds = Math.floor(this.getMsToFormat(this.initialValueMs, decimalPlaces) / 1000);
 
         if (formatCode == -1) {
             minDigits = secondsToFormatCode(initValueSeconds);
@@ -130,7 +171,7 @@ class Clock {
         let timeString = "";
 
         if (secondsOnly) {
-            timeString = this.formatNumber(valueSeconds, minDigits, useLeadingZero);
+            timeString = formatNumber(valueSeconds, minDigits, useLeadingZero);
         }
         else {
             let secondsPart = valueSeconds % 60;
@@ -142,6 +183,15 @@ class Clock {
                 timeString = ":" + timeString;
                 timeString = formatNumber(minutesPart, Math.max(1, minDigits - 2), useLeadingZero) + timeString;
             }
+        }
+
+        if (decimalPlaces > 0) {
+            if (decimalPlaces > 3)
+                decimalPlaces = 3;
+            timeString += ".";
+            timeString += formatNumber(
+                    Math.floor((msToShow % 1000) / Math.pow(10, 3 - decimalPlaces)),
+                    decimalPlaces, true);
         }
 
         return timeString;

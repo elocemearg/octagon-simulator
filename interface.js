@@ -61,6 +61,7 @@ function refreshOptions() {
     setBoolFromCheckBox(options, "displayclock");
     setBoolFromCheckBox(options, "countup");
     setBoolFromCheckBox(options, "leadingzero");
+    setBoolFromCheckBox(options, "showtenths");
     setValueFromSelect(options, "format");
 
     let newDirection = options["countup"] ? 1 : -1;
@@ -70,6 +71,10 @@ function refreshOptions() {
         if (clock.isRunning()) {
             setNextSecondTimeout();
         }
+    }
+
+    if (options["showtenths"]) {
+        setNextSecondTimeout();
     }
 }
 
@@ -118,7 +123,7 @@ function refreshClock() {
         let scaleX = scaleY;
 
         let timeString = clock.formatValue(parseInt(options["format"]),
-                options["leadingzero"], false);
+                options["leadingzero"], false, options["showtenths"] ? 1 : 0);
 
         drawClock(canvas, timeString, clockX, clockY,
                 options["fgcolor"],
@@ -138,18 +143,20 @@ function refreshClock() {
 }
 
 function setNextSecondTimeout() {
-    let ms = clock.getValueMs() % 1000;
+    let timeoutInterval = options["showtenths"] ? 100 : 1000;
+    let ms = clock.getValueMs() % timeoutInterval;
     if (clock.getDirection() > 0) {
-        ms = 1000 - ms;
+        ms = timeoutInterval - ms;
     }
     if (ms == 0)
-        ms = 1000;
+        ms = timeoutInterval;
     if (refreshTimer != null)
         clearTimeout(refreshTimer);
     refreshTimer = setTimeout(refreshClockTimeout, ms);
 }
 
 function refreshClockTimeout() {
+    //console.log("refreshClockTimeout(): clock value is " + clock.getValueMs().toString());
     refreshClock();
     if (clock.isRunning()) {
         setNextSecondTimeout();
@@ -279,6 +286,7 @@ function initialisePost() {
     }
     catch (err) {
         errDiv.innerText = "Exception while initialising clock: " + err.message;
+        throw err;
     }
 }
 
