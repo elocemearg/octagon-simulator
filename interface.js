@@ -2,12 +2,6 @@ let clock = null;
 let options = {};
 let refreshTimer = null;
 
-function discardContents(element) {
-    while (element.firstChild != null) {
-        element.removeElement(element.firstChild);
-    }
-}
-
 function setBoolFromCheckBox(map, elementId, mapName=null) {
     let element = document.getElementById(elementId);
     if (mapName == null)
@@ -202,15 +196,28 @@ function positionChanged() {
     refreshClock();
 }
 
+function enableReset() {
+    let resetButton = document.getElementById("reset");
+    resetButton.disabled = false;
+}
+
+function disableReset() {
+    let resetButton = document.getElementById("reset");
+    resetButton.disabled = true;
+}
+
 function stopClock() {
     clock.stop();
     if (refreshTimer != null) {
         clearTimeout(refreshTimer);
         refreshTimer = null;
     }
-    document.getElementById("start").innerText = "Start";
+    let startButton = document.getElementById("start");
+    startButton.innerText = "Start";
+    startButton.style.backgroundColor = "#ddffdd";
     refreshClock();
     console.log("stopped on " + clock.getValueMs().toString() + "ms");
+    enableReset();
 }
 
 function startStop() {
@@ -219,11 +226,14 @@ function startStop() {
     }
     else {
         if (clock.getDirection() > 0 || clock.getValueMs() != 0) {
-            document.getElementById("start").innerText = "Stop";
+            let startButton = document.getElementById("start");
+            startButton.innerText = "Stop";
+            startButton.style.backgroundColor = "#ffdddd";
             clock.start();
             setNextSecondTimeout();
             console.log("started on " + clock.getValueMs().toString() + "ms");
         }
+        enableReset();
     }
 }
 
@@ -233,6 +243,18 @@ function resetClock() {
     }
     clock.resetClock();
     refreshClock();
+
+    disableReset();
+}
+
+function setInitialTime(seconds) {
+    let minInput = document.getElementById("minutes");
+    let secInput = document.getElementById("seconds");
+
+    minInput.value = Math.floor(seconds / 60).toString();
+    secInput.value = Math.floor(seconds % 60).toString();
+
+    startTimeChanged();
 }
 
 function keyListener(e) {
@@ -294,4 +316,8 @@ function initialise() {
     let errDiv = document.getElementById("errors");
     errDiv.innerText = "Loading, please wait...";
     loadFont(initialisePost);
+}
+
+function windowSizeChanged() {
+    refreshClock();
 }

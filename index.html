@@ -7,7 +7,7 @@
         <meta name="description" content="Old TV countdown clock mockup">
         <link rel="stylesheet" type="text/css" href="interface.css" />
     </head>
-    <body onload="initialise();">
+    <body onload="initialise();" onresize="windowSizeChanged();">
         <script src="font.js"></script>
         <script src="draw.js"></script>
         <script src="clock.js"></script>
@@ -39,13 +39,20 @@
             <div class="menusection">
                 <div class="sectiontitle">Start time</div>
                 <div class="sectionbody">
+                    <!-- <div class="menurow">
+                        <button class="clockpresetbutton" onclick="setInitialTime(0);">0s</button>
+                        <button class="clockpresetbutton" onclick="setInitialTime(10);">10s</button>
+                        <button class="clockpresetbutton" onclick="setInitialTime(30);">30s</button>
+                        <button class="clockpresetbutton" onclick="setInitialTime(60);">1m</button>
+                    </div> -->
                     <div class="menurow">
-                        <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> minutes
-                        <input type="number" id="seconds" min="0" value="30" oninput="startTimeChanged();" /> seconds
+                        <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> min
+                        <input type="number" id="seconds" min="0" value="30" oninput="startTimeChanged();" style="margin-left: 1em;" /> sec
+                        <input type="checkbox" id="countup" name="countup" onclick="optionsChanged();" style="margin-left: 1em;" /><label for="countup">Count up</label>
                     </div>
                     <div class="menurow">
-                        <button class="clockbutton" id="start" onclick="startStop();">Start</button>
-                        <button class="clockbutton" id="reset" onclick="resetClock();">Reset</button>
+                        <button class="clockcontrolbutton" id="start" style="background-color: #ddffdd;" onclick="startStop();">Start</button>
+                        <button class="clockcontrolbutton" id="reset" onclick="resetClock();" disabled>Reset</button>
                     </div>
                 </div>
             </div>
@@ -80,9 +87,6 @@
                         <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display clock</label>
                     </div>
                     <div class="menurow">
-                        <input type="checkbox" id="countup" name="countup" onclick="optionsChanged();" /><label for="countup">Count up</label>
-                    </div>
-                    <div class="menurow">
                         <input type="checkbox" id="leadingzero" name="leadingzero" onclick="optionsChanged();" /><label for="leadingzero">Leading zero</label>
                     </div>
                     <div class="menurow">
@@ -103,21 +107,17 @@
             </div>
 
             <div class="menusection">
-                <div class="sectiontitle">Appearance</div>
+                <div class="sectiontitle">Colour and trim</div>
                 <div class="sectionbody">
-                    <table>
+                    <table class="colourtable">
+                        <tr><td>Background</td><td>Character</td><td>Outline</td></tr>
                         <tr>
-                            <td>Background colour</td>
                             <td><input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#8080ff" /></td>
-                        </tr>
-                        <tr>
-                            <td>Character colour</td>
                             <td><input type="color" name="fgcolor" id="fgcolor" onchange="appearanceChanged();" value="#ffffff" /></td>
-                        </tr>
-                        <tr>
-                            <td>Outline colour</td>
                             <td><input type="color" name="outlinecolor" id="outlinecolor" onchange="appearanceChanged();" value="#000000" /></td>
                         </tr>
+                    </table>
+                    <table>
                         <tr>
                             <td>Outline size</td>
                             <td><input type="number" name="outlinesize" id="outlinesize" oninput="appearanceChanged();" value="1" min="0" max="20" /></td>
@@ -125,18 +125,16 @@
                         <tr>
                             <td>Shadow length</td>
                             <td><input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="50" /></td>
-                        </tr>
-                        <tr>
-                            <td>Shadow direction</td>
+                            <td>direction</td>
                             <td><select name="shadowdir" id="shadowdir" onchange="appearanceChanged();">
-                                <option value="0">North</option>
-                                <option value="1">Northeast</option>
-                                <option value="2">East</option>
-                                <option value="3" selected>Southeast</option>
-                                <option value="4">South</option>
-                                <option value="5">Southwest</option>
-                                <option value="6">West</option>
-                                <option value="7">Northwest</option>
+                                <option value="0">&#x2B06; N</option>
+                                <option value="1">&#x2B08; NE</option>
+                                <option value="2">&#x27A1; E</option>
+                                <option value="3" selected>&#x2B0A; SE</option>
+                                <option value="4">&#x2B07; S</option>
+                                <option value="5">&#x2B0B; SW</option>
+                                <option value="6">&#x2B05; W</option>
+                                <option value="7">&#x2B09; NW</option>
                             </select></td>
                         </tr>
                     </table>
@@ -144,6 +142,7 @@
             </div>
 
             <div class="menusection about">
+                <div class="sectiontitle">About</div>
                 <p>
                 This is a mockup of the on-screen countdown clock used by
                 various BBC shows in the 1990s. It was prompted by

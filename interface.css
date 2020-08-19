@@ -16,6 +16,7 @@ body {
     padding: 10px;
     font-size: 10pt;
     border-radius: 10px;
+    max-width: 400px;
 }
 
 #menu input[type="number"] {
@@ -23,11 +24,11 @@ body {
 }
 
 div.menuinstructions {
-    margin-top: 8pt;
+    margin-bottom: 8pt;
 }
 
 div.menusection {
-    margin-top: 8pt;
+    margin-bottom: 8pt;
 }
 
 div.menurow {
@@ -36,7 +37,11 @@ div.menurow {
     margin-bottom: 2px;
 }
 
-button.clockbutton {
+button.clockpresetbutton {
+    margin-bottom: 10px;
+}
+
+button.clockcontrolbutton {
     margin-top: 10px;
     min-width: 100px;
     height: 24pt;
@@ -58,12 +63,19 @@ div.sectiontitle {
     font-weight: bold;
 }
 
+table.colourtable td {
+    text-align: center;
+    min-width: 80px;
+}
+
 #errors {
-    max-width: 400px;
     color: red;
 }
 
 div.about {
-    max-width: 400px;
     color: gray;
+}
+
+div.about p {
+    margin-left: 10px;
 }
