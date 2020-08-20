@@ -108,34 +108,48 @@
 
             <div class="menusection">
                 <div class="sectiontitle">Colour and trim</div>
-                <div class="sectionbody">
-                    <table class="colourtable">
-                        <tr><td>Background</td><td>Character</td><td>Outline</td></tr>
+                <div class="sectionbody sectionbodycolourtrim">
+                    <div class="colourtable">
+                        <div class="colourcontrol">
+                            <div class="colourcontroltitle">Background</div>
+                            <div class="colourpicker">
+                                <input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#8080ff" />
+                            </div>
+                        </div>
+                        <div class="colourcontrol">
+                            <div class="colourcontroltitle">Character</div>
+                            <div class="colourpicker">
+                                <input type="color" name="fgcolor" id="fgcolor" onchange="appearanceChanged();" value="#ffffff" />
+                            </div>
+                        </div>
+                        <div class="colourcontrol">
+                            <div class="colourcontroltitle">Outline</div>
+                            <div class="colourpicker">
+                                <input type="color" name="outlinecolor" id="outlinecolor" onchange="appearanceChanged();" value="#000000" />
+                            </div>
+                        </div>
+                    </div>
+                    <table class="colourtrim">
                         <tr>
-                            <td><input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#8080ff" /></td>
-                            <td><input type="color" name="fgcolor" id="fgcolor" onchange="appearanceChanged();" value="#ffffff" /></td>
-                            <td><input type="color" name="outlinecolor" id="outlinecolor" onchange="appearanceChanged();" value="#000000" /></td>
-                        </tr>
-                    </table>
-                    <table>
-                        <tr>
-                            <td>Outline size</td>
+                            <td><label for="outlinesize">Outline size</label></td>
                             <td><input type="number" name="outlinesize" id="outlinesize" oninput="appearanceChanged();" value="1" min="0" max="20" /></td>
                         </tr>
                         <tr>
-                            <td>Shadow length</td>
-                            <td><input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="50" /></td>
-                            <td>direction</td>
-                            <td><select name="shadowdir" id="shadowdir" onchange="appearanceChanged();">
-                                <option value="0">&#x2B06; N</option>
-                                <option value="1">&#x2B08; NE</option>
-                                <option value="2">&#x27A1; E</option>
-                                <option value="3" selected>&#x2B0A; SE</option>
-                                <option value="4">&#x2B07; S</option>
-                                <option value="5">&#x2B0B; SW</option>
-                                <option value="6">&#x2B05; W</option>
-                                <option value="7">&#x2B09; NW</option>
-                            </select></td>
+                            <td><label for="shadowlength">Shadow length</label></td>
+                            <td>
+                                <input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="50" />
+                                <label for="shadowdir">direction</label>
+                                <select name="shadowdir" id="shadowdir" onchange="appearanceChanged();">
+                                    <option value="0">&#x2B06; N</option>
+                                    <option value="1">&#x2B08; NE</option>
+                                    <option value="2">&#x27A1; E</option>
+                                    <option value="3" selected>&#x2B0A; SE</option>
+                                    <option value="4">&#x2B07; S</option>
+                                    <option value="5">&#x2B0B; SW</option>
+                                    <option value="6">&#x2B05; W</option>
+                                    <option value="7">&#x2B09; NW</option>
+                                </select>
+                            </td>
                         </tr>
                     </table>
                 </div>
