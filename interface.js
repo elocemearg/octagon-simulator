@@ -56,6 +56,7 @@ function refreshOptions() {
     setBoolFromCheckBox(options, "countup");
     setBoolFromCheckBox(options, "leadingzero");
     setBoolFromCheckBox(options, "showtenths");
+    setBoolFromCheckBox(options, "showborder");
     setValueFromSelect(options, "format");
 
     let newDirection = options["countup"] ? 1 : -1;
@@ -73,7 +74,7 @@ function refreshOptions() {
 }
 
 function refreshAppearance() {
-    setArrayFromColour(options, "bgcolor",  [ 128, 128, 255 ]);
+    setArrayFromColour(options, "bgcolor",  [ 0, 177, 64 ]);
     setArrayFromColour(options, "fgcolor", [255, 255, 255]);
     setArrayFromColour(options, "outlinecolor", [0, 0, 0]);
     setNumberFromInput(options, "outlinesize");
@@ -126,7 +127,8 @@ function refreshClock() {
                 options["outlinecolor"],
                 options["outlinesize"],
                 options["shadowlength"],
-                parseInt(options["shadowdir"])
+                parseInt(options["shadowdir"]),
+                options["showborder"]
         );
     }
 

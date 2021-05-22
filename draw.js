@@ -77,7 +77,7 @@ function charToIndex(ch) {
     return code;
 }
 
-function makeClockImage(string) {
+function makeClockImage(string, border=true) {
     let xstart = 0;
     let ystart = 0;
     let xpos = xstart;
@@ -85,7 +85,10 @@ function makeClockImage(string) {
     /* Work out the width and height of the finished clock. Height is easy,
      * it's just the top to bottom height of the NUMBER_BORDER character.
      * Width is the sum of the widths of the left border, the characters, the
-     * inter-character spacing, and the right border. */
+     * inter-character spacing, and the right border.
+     * Note that we allow space for the border even if we're not actually
+     * showing it, so that the clock doesn't jump around the screen when we
+     * toggle the border. */
     let height;
     let width;
     let charsPrinted = 0;
@@ -104,8 +107,10 @@ function makeClockImage(string) {
 
     let imageData = new ImageData(width, height);
 
-    /* Draw left border */
-    drawCharacter(imageData, LEFT_BORDER, xpos, ystart);
+    if (border) {
+        /* Draw left border */
+        drawCharacter(imageData, LEFT_BORDER, xpos, ystart);
+    }
 
     xpos += getCharacterWidth(LEFT_BORDER);
 
@@ -120,12 +125,16 @@ function makeClockImage(string) {
             if (charsPrinted > 0) {
                 /* Leave some space after the last character, and draw the
                  * top and bottom border above and below this space */
-                drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, INTER_CHAR_SPACE);
+                if (border) {
+                    drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, INTER_CHAR_SPACE);
+                }
                 xpos += INTER_CHAR_SPACE;
             }
 
-            /* Draw the top and bottom border over this character */
-            drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, charWidth);
+            if (border) {
+                /* Draw the top and bottom border over this character */
+                drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, charWidth);
+            }
 
             /* Draw the character, a set distance below the top border */
             drawCharacter(imageData, charIndex, xpos, ystart + BORDER_TO_CHAR_SPACE);
@@ -137,8 +146,10 @@ function makeClockImage(string) {
         }
     }
 
-    /* Draw right border */
-    drawCharacter(imageData, RIGHT_BORDER, xpos, ystart);
+    if (border) {
+        /* Draw right border */
+        drawCharacter(imageData, RIGHT_BORDER, xpos, ystart);
+    }
 
     return imageData;
 }
@@ -202,11 +213,11 @@ const NORTHWEST = 7;
 function drawClock(destCanvas, string, xstart, ystart, mainColour,
         xstartRightEdge=false, ystartBottomEdge=false,
         scaleX=1, scaleY=1, outlineColour=null, outlineSize=0,
-        shadowLength=0, shadowDirection=SOUTHEAST) {
+        shadowLength=0, shadowDirection=SOUTHEAST, showBorder=true) {
     let destContext = destCanvas.getContext("2d");
 
     /* Get our basic clock image based on this string */
-    let clockImage = makeClockImage(string);
+    let clockImage = makeClockImage(string, showBorder);
 
     /* Clock canvas: just the image of the numbers with no outline, padding or
      * shadow. */
