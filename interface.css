@@ -45,6 +45,7 @@ button.clockcontrolbutton {
     margin-top: 10px;
     min-width: 100px;
     height: 24pt;
+    font-size: 12pt;
 }
 
 div.sectionbody table {
@@ -61,6 +62,10 @@ table.menuinstructions td {
 
 div.sectiontitle {
     font-weight: bold;
+}
+
+div.sectiontitleclickable {
+    cursor: pointer;
 }
 
 div.colourtable {
@@ -99,9 +104,31 @@ table.colourtrim input {
 }
 
 div.about {
-    color: gray;
 }
 
 div.about p {
     margin-left: 10px;
+}
+
+a.expandlink {
+    color: blue;
+    cursor: pointer;
+}
+
+#cookiesummary {
+    color: gray;
+}
+
+div.sectiondropdown {
+    border: 1px solid black;
+    padding: 2px;
+    text-align: center;
+    width: 1em;
+    display: inline-block;
+    background-color: #dddddd;
+}
+
+button.settingsbutton {
+    margin-left: 1em;
+    font-size: 12pt;
 }

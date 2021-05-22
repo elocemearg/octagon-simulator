@@ -47,42 +47,48 @@
                     </div> -->
                     <div class="menurow">
                         <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> min
-                        <input type="number" id="seconds" min="0" value="30" oninput="startTimeChanged();" style="margin-left: 1em;" /> sec
+                        <input type="number" id="seconds" min="0" value="0" oninput="startTimeChanged();" style="margin-left: 1em;" /> sec
                         <input type="checkbox" id="countup" name="countup" onclick="optionsChanged();" style="margin-left: 1em;" /><label for="countup">Count up</label>
                     </div>
                     <div class="menurow">
-                        <button class="clockcontrolbutton" id="start" style="background-color: #ddffdd;" onclick="startStop();">Start</button>
-                        <button class="clockcontrolbutton" id="reset" onclick="resetClock();" disabled>Reset</button>
+                        <button class="clockcontrolbutton" id="start" style="background-color: #ddffdd;" onclick="startStop();">&#x25B6; Start</button>
+                        <button class="clockcontrolbutton" id="reset" onclick="resetClock();" disabled>&#x21BA; Reset</button>
                     </div>
                 </div>
             </div>
             <div class="menusection">
-                <div class="sectiontitle">Position</div>
-                <div class="sectionbody">
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('position');">
+                    <div class="sectiondropdown" id="positiondropdown">&#x25B6;</div>
+                    Size &amp; position
+                </div>
+                <div class="sectionbody" id="positionsection">
                     <div class="menurow">
                         <select id="xposanchor" name="xposanchor" onchange="positionChanged();">
                             <option value="left">Left edge</option>
                             <option value="right" selected>Right edge</option>
                         </select>
-                        <input type="number" id="xpospc" value="85" oninput="positionChanged();" />% from left of window
+                        <input type="number" id="xpospc" oninput="positionChanged();" />% from left of window
                     </div>
                     <div class="menurow">
                         <select id="yposanchor" name="yposanchor" onchange="positionChanged();">
                             <option value="top">Top edge</option>
                             <option value="bottom" selected>Bottom edge</option>
                         </select>
-                        <input type="number" id="ypospc" value="85" oninput="positionChanged();" />% from top of window
+                        <input type="number" id="ypospc" oninput="positionChanged();" />% from top of window
                     </div>
                     <div class="menurow">
                         Final scale factor
-                        <input type="number" id="scalefactor" value="100" oninput="positionChanged();" />%
+                        <input type="number" id="scalefactor" oninput="positionChanged();" />%
                     </div>
                 </div>
             </div>
 
             <div class="menusection">
-                <div class="sectiontitle">Options</div>
-                <div class="sectionbody">
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('format');">
+                    <div class="sectiondropdown" id="formatdropdown">&#x25B6;</div>
+                    Format &amp; display
+                </div>
+                <div class="sectionbody" id="formatsection">
                     <div class="menurow">
                         <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display clock</label>
                     </div>
@@ -110,8 +116,11 @@
             </div>
 
             <div class="menusection">
-                <div class="sectiontitle">Colour and trim</div>
-                <div class="sectionbody sectionbodycolourtrim">
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('colourtrim');">
+                    <div class="sectiondropdown" id="colourtrimdropdown">&#x25B6;</div>
+                    Colour &amp; trim
+                </div>
+                <div class="sectionbody sectionbodycolourtrim" id="colourtrimsection">
                     <div class="colourtable">
                         <div class="colourcontrol">
                             <div class="colourcontroltitle">Background</div>
@@ -158,8 +167,42 @@
                 </div>
             </div>
 
+            <div class="menusection">
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('save');">
+                    <div class="sectiondropdown" id="savedropdown">&#x25B6;</div>
+                    Save/restore settings
+                </div>
+                <div class="sectionbody" id="savesection">
+                    <div class="menurow">
+                        <p id="cookiesummary">
+                        Note: this uses cookies. <a onclick="showCookieDetails();" class="expandlink">[more info]</a>
+                        </p>
+                        <p id="cookiedetails" style="display: none;">
+                        This feature uses cookies.
+                        By using the "Save settings" button you consent to
+                        the above settings being saved in your browser as a
+                        cookie. This page does not use cookies for any other
+                        purpose. In particular, nothing on this page uses
+                        cookies for any advertising or tracking purposes.
+                        <a onclick="hideCookieDetails();" class="expandlink">[hide]</a>
+                        </p>
+                        <button class="settingsbutton" id="savesettings" onclick="saveSettings();">&#x1F4BE; Save settings</button>
+                    </div>
+                    <div class="menurow">
+                        <button class="settingsbutton" id="restoresettings" onclick="restoreSettings();">&#x1F4C2; Restore saved settings</button>
+                    </div>
+                    <div class="menurow" style="margin-top: 15px;">
+                        <button class="settingsbutton" id="resetsettings" onclick="resetSettingsToDefaults();">&#x1F5D1; Reset to defaults</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="menusection about">
-                <div class="sectiontitle">About</div>
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('about');">
+                    <div class="sectiondropdown" id="aboutdropdown">&#x25B6;</div>
+                    About
+                </div>
+                <div class="sectionbody" id="aboutsection">
                 <p>
                 This is a mockup of the on-screen countdown clock used by
                 various BBC shows in the 1990s. It was prompted by
@@ -173,6 +216,7 @@
                 <p>
                 <a href="https://github.com/elocemearg/octagon-simulator" target="_blank">Source code on GitHub</a>
                 </p>
+                </div>
             </div>
         </div>
     </body>
