@@ -7,7 +7,7 @@
         <meta name="description" content="Old TV countdown clock mockup">
         <link rel="stylesheet" type="text/css" href="interface.css" />
     </head>
-    <body onload="initialise();" onresize="windowSizeChanged();">
+    <body onload="initialise();">
         <script src="font.js"></script>
         <script src="draw.js"></script>
         <script src="clock.js"></script>
@@ -166,7 +166,28 @@
                     </table>
                 </div>
             </div>
-
+            <div class="menusection">
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('export');">
+                    <div class="sectiondropdown" id="exportdropdown">&#x25B6;</div>
+                    Export settings as URL
+                </div>
+                <div class="sectionbody" id="exportsection">
+                    <div class="menurow">
+                        <div class="menurow">
+                        <input type="checkbox" id="exportmenuon" name="exportmenuon" onclick="exportSettingsAsURL();" checked /><label for="exportmenuon">Show menu</label>
+                        </div>
+                        <div class="menurow">
+                        <input type="checkbox" id="exportstart" name="exportstart" onclick="exportSettingsAsURL();" /><label for="exportstart">Start clock automatically</label>
+                        </div>
+                        <div class="menurow">
+                        <button id="copyexporturl" onclick="exportSettingsAsURLAndCopy();">Export and copy to clipboard</button>
+                        </div>
+                        <div class="menurow">
+                        <input type="text" id="exporturl" name="exporturl" style="background-color: #eeeeee;" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="menusection">
                 <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('save');">
                     <div class="sectiondropdown" id="savedropdown">&#x25B6;</div>
@@ -206,8 +227,7 @@
                 <p>
                 This is a mockup of the on-screen countdown clock used by
                 various BBC shows in the 1990s. It was prompted by
-                <a href="https://www.youtube.com/watch?v=g80rnhK-cKo#t=16m32s" target="_blank">this video</a>
-                about the BBC Micro.
+                <a href="https://www.youtube.com/watch?v=g80rnhK-cKo#t=16m32s" target="_blank">this video about the BBC Micro with Tom Scott and the Centre for Computing History</a>.
                 </p>
                 <p>
                 The font for the numbers was reverse-engineered from

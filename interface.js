@@ -317,6 +317,18 @@ function readOptionFromCookie(name) {
     return null;
 }
 
+function optionValueToString(type, value) {
+    if (type === "color") {
+        return RGBArrayToHex(value);
+    }
+    else if (value != null) {
+        return value.toString();
+    }
+    else {
+        return null;
+    }
+}
+
 /* Take the entries in optionsValues and save their values to the browser
  * cookie in the form octagonsimulator_<name>=value. Values are converted
  * to strings before writing to the cookie. */
@@ -325,17 +337,110 @@ function saveOptionsToCookies() {
         let desc = optionsDesc[name];
         if (desc == null)
             continue;
-        let t = desc["type"];
-        let value = optionsValues[name];
-        if (t === "color") {
-            value = RGBArrayToHex(value);
-        }
-        else if (value != null) {
-            value = value.toString();
-        }
+        let value = optionValueToString(desc["type"], optionsValues[name]);
         if (value != null) {
             saveOptionToCookie(name, value);
         }
+    }
+}
+
+function makeOptionsQueryString() {
+    let qs = "";
+    for (let name in optionsValues) {
+        let desc = optionsDesc[name];
+        if (desc == null)
+            continue;
+        let value = optionValueToString(desc["type"], optionsValues[name]);
+        if (value != null) {
+            if (qs != "") {
+                qs += "&";
+            }
+            qs += encodeURIComponent(name);
+            qs += "=";
+            qs += encodeURIComponent(value);
+        }
+    }
+
+    let additionalOptions = "";
+    let checkbox = document.getElementById("exportmenuon");
+    if (checkbox && !checkbox.checked) {
+        additionalOptions += "&menu=false";
+    }
+    else {
+        additionalOptions += "&menu=true";
+    }
+    checkbox = document.getElementById("exportstart");
+    if (checkbox && checkbox.checked) {
+        additionalOptions += "&start=true";
+    }
+    else {
+        additionalOptions += "&start=false";
+    }
+    if (qs == "") {
+        /* Trim the first & from additionalOptions if we don't need it */
+        additionalOptions = additionalOptions.substring(1);
+    }
+
+    return qs + additionalOptions;
+}
+
+function makeOptionsURL() {
+    let url = window.location.href;
+    let qpos = url.indexOf('?');
+    if (qpos >= 0) {
+        url = url.substring(0, qpos);
+    }
+    return url + "?" + makeOptionsQueryString();
+}
+
+function exportSettingsAsURL() {
+    let inputElement = document.getElementById("exporturl");
+    inputElement.value = makeOptionsURL();
+}
+
+function exportSettingsAsURLAndCopy() {
+    let inputElement = document.getElementById("exporturl");
+    exportSettingsAsURL();
+    inputElement.select();
+    inputElement.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+}
+
+function stringToBool(value) {
+    /* Possibly unnecessary attempt to accommodate as many ways
+     * of saying "true" and "false" as possible... */
+    if (value == null)
+        return null;
+    value = value.toLowerCase();
+    if (value == "true" || value == "t" || value == "1" || value == "y" || value == "yes") {
+        return true;
+    }
+    else if (value == "false" || value == "f" || value == "0" || value == "n" || value == "no") {
+        return false;
+    }
+    else {
+        return null;
+    }
+}
+
+function stringValueToUsefulValue(desc, value) {
+    if (value == null) {
+        return value;
+    }
+    else {
+        let t = desc["type"];
+        if (t === "color") {
+            value = HexToRGBArray(value);
+        }
+        else if (t === "number") {
+            value = parseFloat(value);
+            if (isNaN(value))
+                value = null;
+        }
+        else if (t === "checkbox") {
+            value = stringToBool(value);
+        }
+        return value;
     }
 }
 
@@ -348,34 +453,80 @@ function restoreOptionsFromCookies() {
         let value = readOptionFromCookie(name);
         if (value != null) {
             let desc = optionsDesc[name];
-            let t = desc["type"];
-            if (t === "color") {
-                value = HexToRGBArray(value);
-            }
-            else if (t === "number") {
-                value = parseFloat(value);
-                if (isNaN(value))
-                    value = null;
-            }
-            else if (t === "checkbox") {
-                /* Possibly unnecessary attempt to accommodate as many ways
-                 * of saying "true" and "false" as possible... */
-                value = value.toLowerCase();
-                if (value == "true" || value == "t" || value == "1" || value == "y" || value == "yes") {
-                    value = true;
-                }
-                else if (value == "false" || value == "f" || value == "0" || value == "n" || value == "no") {
-                    value = false;
-                }
-                else {
-                    value = null;
-                }
-            }
-            
-            if (value != null) {
-                optionsValues[name] = value;
+            value = stringValueToUsefulValue(desc, value);
+            optionsValues[name] = value;
+            setControlFromOptionValue(optionsValues, optionsDesc, name);
+        }
+    }
+}
+
+function restoreOptionsFromURL() {
+    let queryString = window.location.href;
+    let qpos = queryString.indexOf('?');
+    if (qpos < 0)
+        return;
+
+    queryString = queryString.substring(qpos + 1);
+
+    let namesValues = queryString.split("&");
+    let menuOn = true;
+    let menuOnGiven = false;
+    let autoStart = false;
+    let autoStartGiven = false;
+    let startTimeSet = false;
+
+    for (let i = 0; i < namesValues.length; ++i) {
+        let nameValue = namesValues[i].split('=');
+        let name, value;
+        if (nameValue.length > 0) {
+            name = decodeURIComponent(nameValue[0]);
+            if (nameValue.length > 1)
+                value = decodeURIComponent(nameValue[1].replace(/\+/g, " "));
+            else
+                value = null;
+            if (name in optionsDesc) {
+                let usefulValue = stringValueToUsefulValue(optionsDesc[name], value);
+                optionsValues[name] = usefulValue;
                 setControlFromOptionValue(optionsValues, optionsDesc, name);
             }
+            else if (name == "menu") {
+                menuOn = stringToBool(value);
+                menuOnGiven = true;
+            }
+            else if (name == "start") {
+                autoStart = stringToBool(value);
+                autoStartGiven = true;
+            }
+            else {
+                console.log("restoreOptionsFromURL: " + name + " unrecognised, ignored.");
+            }
+
+            if (name == "startminutes" || name == "startseconds") {
+                startTimeSet = true;
+            }
+        }
+    }
+
+    if (startTimeSet) {
+        startTimeChanged();
+    }
+    if (menuOnGiven) {
+        let menu = document.getElementById("menu");
+        let checkbox = document.getElementById("exportmenuon");
+        if (checkbox) {
+            checkbox.checked = menuOn;
+        }
+        if (menu) {
+            menu.style.display = (menuOn ? null : "none");
+        }
+    }
+    if (autoStartGiven && autoStart) {
+        let checkbox = document.getElementById("exportstart");
+        if (checkbox) {
+            checkbox.checked = autoStart;
+        }
+        if (!clock.isRunning()) {
+            startStop();
         }
     }
 }
@@ -424,6 +575,9 @@ function refreshPosition() {
 }
 
 function refreshClock() {
+    if (clock == null)
+        return;
+
     let canvasDiv = document.getElementById("screen");
     let canvas = document.getElementById("canvas");
 
@@ -646,6 +800,10 @@ function keyListener(e) {
     }
 }
 
+function windowSizeChanged() {
+    refreshClock();
+}
+
 function initialisePost() {
     let errDiv = document.getElementById("errors");
     try {
@@ -677,6 +835,10 @@ function initialisePost() {
                 });
             }
         }
+
+        window.addEventListener("resize", windowSizeChanged);
+
+        restoreOptionsFromURL();
     }
     catch (err) {
         errDiv.innerText = "Exception while initialising clock: " + err.message;
@@ -692,14 +854,11 @@ function initialise() {
     hideOptionsSection("position");
     hideOptionsSection("format");
     hideOptionsSection("colourtrim");
+    hideOptionsSection("export");
     hideOptionsSection("save");
     hideOptionsSection("about");
 
     loadFont(initialisePost);
-}
-
-function windowSizeChanged() {
-    refreshClock();
 }
 
 /* Save the settings currently in optionsValues to the cookie. */
