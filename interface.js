@@ -114,6 +114,12 @@ let optionsDesc = {
         "id" : "ypospc",
         "category" : "position",
         "default" : 85
+    },
+    "bgdisable" : {
+        "type" : "checkbox",
+        "id" : "bgdisable",
+        "category" : "appearance",
+        "default" : false
     }
 };
 let refreshTimer = null;
@@ -566,8 +572,12 @@ function refreshOptions() {
 function refreshAppearance() {
     setOptionValuesInCategory("appearance");
 
-    document.getElementById("screen").style.backgroundColor =
-        document.getElementById("bgcolor").value;
+    if (optionsValues["bgdisable"]) {
+        document.body.style.backgroundColor = null;
+    }
+    else {
+        document.body.style.backgroundColor = document.getElementById("bgcolor").value;
+    }
 }
 
 function refreshPosition() {
@@ -818,9 +828,6 @@ function initialisePost() {
             secs = 0;
 
         clock = new Clock(mins * 60 + secs);
-        refreshConfiguration();
-        refreshClock();
-        document.addEventListener("keyup", keyListener);
         errDiv.innerText = "";
 
         /* If the user clicks on any of the number inputs, highlight the
@@ -839,6 +846,11 @@ function initialisePost() {
         window.addEventListener("resize", windowSizeChanged);
 
         restoreOptionsFromURL();
+
+        refreshConfiguration();
+        refreshClock();
+
+        document.addEventListener("keyup", keyListener);
     }
     catch (err) {
         errDiv.innerText = "Exception while initialising clock: " + err.message;
