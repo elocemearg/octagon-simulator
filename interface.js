@@ -1,6 +1,15 @@
 let clock = null;
 let optionsValues = {};
+let countValue = 0;
+let countControl = null;
+let counterModeCheckbox = null;
 let optionsDesc = {
+    "countermode" : {
+        "type" : "checkbox",
+        "id" : "countermode",
+        "category" : "options",
+        "default" : false
+    },
     "displayclock" : {
         "type" : "checkbox",
         "id" : "displayclock",
@@ -569,6 +578,37 @@ function refreshOptions() {
     }
 }
 
+function changeMode() {
+    let counterMode = counterModeCheckbox.checked;
+    let counterModeControls = document.getElementsByClassName("countermodecontrols");
+    let clockModeControls = document.getElementsByClassName("clockmodecontrols");
+    for (let i = 0; i < counterModeControls.length; ++i) {
+        counterModeControls[i].style.display = counterMode ? "block" : "none";
+    }
+    for (let i = 0; i < clockModeControls.length; ++i) {
+        clockModeControls[i].style.display = counterMode ? "none" : "block";
+    }
+
+    if (counterMode) {
+        if (refreshTimer != null) {
+            clearTimeout(refreshTimer);
+            refreshTimer = null;
+        }
+    }
+    else {
+        setNextSecondTimeout();
+    }
+
+    optionsChanged();
+}
+
+function countChanged() {
+    let newValue = parseInt(countControl.value);
+    if (!isNaN(newValue)) {
+        setCounter(newValue);
+    }
+}
+
 function refreshAppearance() {
     setOptionValuesInCategory("appearance");
 
@@ -611,8 +651,14 @@ function refreshClock() {
         scaleY *= optionsValues["scalefactor"] / 100.0;
         let scaleX = scaleY;
 
-        let timeString = clock.formatValue(parseInt(optionsValues["format"]),
+        let timeString;
+        if (optionsValues["countermode"]) {
+            timeString = formatNumber(countValue, 2, optionsValues["leadingzero"]);
+        }
+        else {
+            timeString = clock.formatValue(parseInt(optionsValues["format"]),
                 optionsValues["leadingzero"], false, optionsValues["showtenths"] ? 1 : 0);
+        }
 
         drawClock(canvas, timeString, clockX, clockY,
                 optionsValues["fgcolor"],
@@ -657,6 +703,7 @@ function refreshClockTimeout() {
  * and redraw anything that needs redrawing because of this. */
 function refreshConfiguration() {
     startTimeChanged();
+    changeMode();
     refreshOptions();
     refreshAppearance();
     refreshPosition();
@@ -773,6 +820,22 @@ function resetClock() {
     disableReset();
 }
 
+function adjustCounter(delta) {
+    setCounter(countValue + delta);
+    refreshClock();
+}
+
+function setCounter(value) {
+    countValue = value;
+    countControl.value = countValue.toString();
+    refreshClock();
+}
+
+function resetCounter() {
+    setCounter(0);
+    refreshClock();
+}
+
 function setInitialTime(seconds) {
     let minInput = document.getElementById("minutes");
     let secInput = document.getElementById("seconds");
@@ -784,6 +847,12 @@ function setInitialTime(seconds) {
 }
 
 function keyListener(e) {
+    let active = document.activeElement;
+    if (active.tagName.toUpperCase() == "INPUT" &&
+            (active.getAttribute("type").toUpperCase() == "NUMBER" ||
+            active.getAttribute("type").toUpperCase() == "TEXT")) {
+        return;
+    }
     switch (e.keyCode) {
         case 27:
         case 77:
@@ -801,11 +870,26 @@ function keyListener(e) {
             break;
 
         case 82:
-            resetClock();
+            if (optionsValues["countermode"]) {
+                resetCounter();
+            }
+            else {
+                resetClock();
+            }
             break;
 
         case 68:
             document.getElementById("displayclock").click();
+            break;
+
+        case 189:
+        case 109:
+            adjustCounter(-1);
+            break;
+
+        case 187:
+        case 107:
+            adjustCounter(1);
             break;
     }
 }
@@ -871,6 +955,9 @@ function initialise() {
     hideOptionsSection("about");
 
     loadFont(initialisePost);
+
+    countControl = document.getElementById("count");
+    counterModeCheckbox = document.getElementById("countermode");
 }
 
 /* Save the settings currently in optionsValues to the cookie. */

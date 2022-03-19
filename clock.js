@@ -18,8 +18,12 @@ function formatNumber(n, minDigits, useLeadingZero) {
     let minus = (n < 0);
     let digitsWritten = 0;
 
-    if (minus)
+    if (minus) {
         n = -n;
+        if (minDigits > 0) {
+            minDigits--;
+        }
+    }
 
     while (n > 0 || s.length < minDigits) {
         let d = n % 10;

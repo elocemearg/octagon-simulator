@@ -46,13 +46,28 @@
                         <button class="clockpresetbutton" onclick="setInitialTime(60);">1m</button>
                     </div> -->
                     <div class="menurow">
-                        <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> min
-                        <input type="number" id="seconds" min="0" value="0" oninput="startTimeChanged();" style="margin-left: 1em;" /> sec
-                        <input type="checkbox" id="countup" name="countup" onclick="optionsChanged();" style="margin-left: 1em;" /><label for="countup">Count up</label>
+                        <input type="checkbox" id="countermode" name="countermode" onclick="changeMode();" /><label for="countermode"> Counter mode</label>
                     </div>
-                    <div class="menurow">
-                        <button class="clockcontrolbutton" id="start" style="background-color: #ddffdd;" onclick="startStop();">&#x25B6; Start</button>
-                        <button class="clockcontrolbutton" id="reset" onclick="resetClock();" disabled>&#x21BA; Reset</button>
+                    <div class="clockmodecontrols">
+                        <div class="menurow">
+                            <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> min
+                            <input type="number" id="seconds" min="0" value="0" oninput="startTimeChanged();" style="margin-left: 1em;" /> sec
+                            <input type="checkbox" id="countup" name="countup" onclick="optionsChanged();" style="margin-left: 1em;" /><label for="countup">Count up</label>
+                        </div>
+                        <div class="menurow">
+                            <button class="clockcontrolbutton" id="start" style="background-color: #ddffdd;" onclick="startStop();">&#x25B6; Start</button>
+                            <button class="clockcontrolbutton" id="reset" onclick="resetClock();" disabled>&#x21BA; Reset</button>
+                        </div>
+                    </div>
+                    <div class="countermodecontrols">
+                        <div class="menurow">
+                            Count <input type="number" id="count" value="0" oninput="countChanged();" />
+                        </div>
+                        <div class="menurow">
+                            <button class="clockcontrolbutton" id="counterup" style="background-color: #ddffdd;" onclick="adjustCounter(1);">+</button>
+                            <button class="clockcontrolbutton" id="counterdown" style="background-color: #ddffdd;" onclick="adjustCounter(-1);">-</button>
+                            <button class="clockcontrolbutton" id="resetcounter" onclick="resetCounter();" >&#x21BA; Reset</button>
+                        </div>
                     </div>
                 </div>
             </div>
