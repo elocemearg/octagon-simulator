@@ -20,9 +20,6 @@ function formatNumber(n, minDigits, useLeadingZero) {
 
     if (minus) {
         n = -n;
-        if (minDigits > 0) {
-            minDigits--;
-        }
     }
 
     while (n > 0 || s.length < minDigits) {
@@ -39,7 +36,15 @@ function formatNumber(n, minDigits, useLeadingZero) {
         n = Math.floor(n / 10);
     }
     if (minus) {
-        s = "-" + s;
+        /* Replace the last space with a minus, or if there is no space, put
+         * a minus at the front. */
+        let lastSpace = s.lastIndexOf(" ");
+        if (lastSpace == -1) {
+            s = "-" + s;
+        }
+        else {
+            s = s.substring(0, lastSpace) + "-" + s.substring(lastSpace + 1);
+        }
     }
     return s;
 }

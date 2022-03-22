@@ -51,7 +51,20 @@
             </div>
 
             <div class="menusection">
-                <div class="sectiontitle">Start time</div>
+                <div class="sectiontitle">Mode</div>
+                <div class="sectionbody">
+                    <div class="menurow" style="margin-bottom: 10px;">
+                        <input type="radio" id="clockmode" name="countermode" value="0" onclick="changeMode();" checked /><label for="clockmode">Clock</label>
+                        <br />
+                        <input type="radio" id="countermode" name="countermode" value="1" onclick="changeMode();" /><label for="countermode">Counter</label>
+                        <!-- <input type="checkbox" id="countermode" name="countermode" onclick="changeMode();" /><label for="countermode"> Counter mode</label> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="menusection">
+                <div class="sectiontitle clockmodecontrols">Start time</div>
+                <div class="sectiontitle countermodecontrols">Counter</div>
                 <div class="sectionbody">
                     <!-- <div class="menurow">
                         <button class="clockpresetbutton" onclick="setInitialTime(0);">0s</button>
@@ -59,9 +72,6 @@
                         <button class="clockpresetbutton" onclick="setInitialTime(30);">30s</button>
                         <button class="clockpresetbutton" onclick="setInitialTime(60);">1m</button>
                     </div> -->
-                    <div class="menurow">
-                        <input type="checkbox" id="countermode" name="countermode" onclick="changeMode();" /><label for="countermode"> Counter mode</label>
-                    </div>
                     <div class="clockmodecontrols">
                         <div class="menurow">
                             <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> min

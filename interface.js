@@ -8,10 +8,10 @@ let counterInstructions = null;
 
 let optionsDesc = {
     "countermode" : {
-        "type" : "checkbox",
+        "type" : "radio",
         "id" : "countermode",
         "category" : "options",
-        "default" : false
+        "default" : "0"
     },
     "displayclock" : {
         "type" : "checkbox",
@@ -158,6 +158,31 @@ function setCheckBoxInput(elementId, value) {
     }
 }
 
+function setValueFromRadioButton(map, elementName, defaultValue, mapName=null) {
+    let elements = document.getElementsByName(elementName);
+    let value = null;
+    if (mapName == null) {
+        mapName = elementName;
+    }
+    for (let i = 0; i < elements.length; ++i) {
+        if (elements[i].checked) {
+            value = elements[i].value;
+            break;
+        }
+    }
+    if (value === null) {
+        value = defaultValue;
+    }
+    map[mapName] = value;
+}
+
+function setRadioInput(elementName, value) {
+    let elements = document.getElementsByName(elementName);
+    for (let i = 0; i < elements.length; ++i) {
+        elements[i].checked = (elements[i].value.toString() == value.toString());
+    }
+}
+
 function setValueFromSelect(map, elementId, mapName=null) {
     let el = document.getElementById(elementId);
     if (mapName == null)
@@ -283,6 +308,9 @@ function setOptionValueFromControl(valueMap, elementType, elementId, defaultValu
     else if (elementType === "color") {
         setArrayFromColour(valueMap, elementId, defaultValue, mapKey);
     }
+    else if (elementType === "radio") {
+        setValueFromRadioButton(valueMap, elementId, defaultValue, mapKey);
+    }
 }
 
 /* Update one form control with an option value looked up from valueMap.
@@ -306,6 +334,9 @@ function setControlFromOptionValue(valueMap, descMap, mapKey) {
     }
     else if (t === "color") {
         setColourInput(elementId, value);
+    }
+    else if (t === "radio") {
+        setRadioInput(elementId, value);
     }
 }
 
@@ -665,7 +696,7 @@ function refreshClock() {
         let scaleX = scaleY;
 
         let timeString;
-        if (optionsValues["countermode"]) {
+        if (parseInt(optionsValues["countermode"]) !== 0) {
             timeString = formatNumber(countValue, optionsValues["counterwidth"],
                 optionsValues["leadingzero"]);
         }
@@ -862,7 +893,7 @@ function setInitialTime(seconds) {
 
 function keyListener(e) {
     let active = document.activeElement;
-    if (active.tagName.toUpperCase() == "INPUT" &&
+    if (e.keyCode != 27 && active.tagName.toUpperCase() == "INPUT" &&
             (active.getAttribute("type").toUpperCase() == "NUMBER" ||
             active.getAttribute("type").toUpperCase() == "TEXT")) {
         return;
@@ -884,7 +915,7 @@ function keyListener(e) {
             break;
 
         case 82:
-            if (optionsValues["countermode"]) {
+            if (parseInt(optionsValues["countermode"]) !== 0) {
                 resetCounter();
             }
             else {
