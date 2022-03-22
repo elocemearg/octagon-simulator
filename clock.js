@@ -36,14 +36,26 @@ function formatNumber(n, minDigits, useLeadingZero) {
         n = Math.floor(n / 10);
     }
     if (minus) {
-        /* Replace the last space with a minus, or if there is no space, put
-         * a minus at the front. */
-        let lastSpace = s.lastIndexOf(" ");
-        if (lastSpace == -1) {
+        /* Find the last space, or if we're zero-padding, the first character
+         * if that is a zero, and replace it with a minus. If there is no
+         * such character, put a minus at the front of the string. */
+        let minusPos;
+        if (useLeadingZero) {
+            if (s.length > 0 && s.charAt(0) === "0") {
+                minusPos = 0;
+            }
+            else {
+                minusPos = -1;
+            }
+        }
+        else {
+            minusPos = s.lastIndexOf(" ");
+        }
+        if (minusPos == -1) {
             s = "-" + s;
         }
         else {
-            s = s.substring(0, lastSpace) + "-" + s.substring(lastSpace + 1);
+            s = s.substring(0, minusPos) + "-" + s.substring(minusPos + 1);
         }
     }
     return s;
