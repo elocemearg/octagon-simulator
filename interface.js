@@ -3,6 +3,9 @@ let optionsValues = {};
 let countValue = 0;
 let countControl = null;
 let counterModeCheckbox = null;
+let clockInstructions = null;
+let counterInstructions = null;
+
 let optionsDesc = {
     "countermode" : {
         "type" : "checkbox",
@@ -57,6 +60,12 @@ let optionsDesc = {
         "id" : "format",
         "category" : "options",
         "default" : "-1"
+    },
+    "counterwidth" : {
+        "type" : "number",
+        "id" : "counterwidth",
+        "category" : "options",
+        "default" : 2
     },
     "bgcolor" : {
         "type" : "color",
@@ -594,8 +603,12 @@ function changeMode() {
             clearTimeout(refreshTimer);
             refreshTimer = null;
         }
+        clockInstructions.style.display = "none";
+        counterInstructions.style.display = "block";
     }
     else {
+        clockInstructions.style.display = "block";
+        counterInstructions.style.display = "none";
         setNextSecondTimeout();
     }
 
@@ -653,7 +666,8 @@ function refreshClock() {
 
         let timeString;
         if (optionsValues["countermode"]) {
-            timeString = formatNumber(countValue, 2, optionsValues["leadingzero"]);
+            timeString = formatNumber(countValue, optionsValues["counterwidth"],
+                optionsValues["leadingzero"]);
         }
         else {
             timeString = clock.formatValue(parseInt(optionsValues["format"]),
@@ -958,6 +972,8 @@ function initialise() {
 
     countControl = document.getElementById("count");
     counterModeCheckbox = document.getElementById("countermode");
+    clockInstructions = document.getElementById("clockinstructions");
+    counterInstructions = document.getElementById("counterinstructions");
 }
 
 /* Save the settings currently in optionsValues to the cookie. */

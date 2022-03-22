@@ -49,6 +49,13 @@ button.clockcontrolbutton {
     font-size: 12pt;
 }
 
+button.countercontrolbutton {
+    margin-top: 10px;
+    min-width: 60px;
+    height: 24pt;
+    font-size: 12pt;
+}
+
 div.sectionbody table {
     margin-left: 10px;
 }

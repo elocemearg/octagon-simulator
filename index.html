@@ -20,7 +20,7 @@
             <div id="errors"></div>
             <div class="menuinstructions">
                 <div class="sectiontitle">Keyboard shortcuts</div>
-                <table class="menuinstructions">
+                <table class="menuinstructions" id="clockinstructions">
                     <tr>
                         <td>Esc, M</td><td>Show/hide this menu</td>
                     </tr>
@@ -29,6 +29,20 @@
                     </tr>
                     <tr>
                         <td>R</td><td>Reset clock</td>
+                    </tr>
+                    <tr>
+                        <td>D</td><td>Display on/off</td>
+                    </tr>
+                </table>
+                <table class="menuinstructions" id="counterinstructions" style="display: none;">
+                    <tr>
+                        <td>Esc, M</td><td>Show/hide this menu</td>
+                    </tr>
+                    <tr>
+                        <td>+/&minus;</td><td>Increment/decrement</td>
+                    </tr>
+                    <tr>
+                        <td>R</td><td>Reset to zero</td>
                     </tr>
                     <tr>
                         <td>D</td><td>Display on/off</td>
@@ -61,12 +75,12 @@
                     </div>
                     <div class="countermodecontrols">
                         <div class="menurow">
-                            Count <input type="number" id="count" value="0" oninput="countChanged();" />
+                            <label for="count">Count </label><input type="number" id="count" name="count" value="0" oninput="countChanged();" />
                         </div>
                         <div class="menurow">
-                            <button class="clockcontrolbutton" id="counterup" style="background-color: #ddffdd;" onclick="adjustCounter(1);">+</button>
-                            <button class="clockcontrolbutton" id="counterdown" style="background-color: #ddffdd;" onclick="adjustCounter(-1);">-</button>
-                            <button class="clockcontrolbutton" id="resetcounter" onclick="resetCounter();" >&#x21BA; Reset</button>
+                            <button class="countercontrolbutton" id="counterup" style="background-color: #ddffdd;" onclick="adjustCounter(1);">+</button>
+                            <button class="countercontrolbutton" id="counterdown" style="background-color: #ffdddd;" onclick="adjustCounter(-1);">&minus;</button>
+                            <button class="countercontrolbutton" id="resetcounter" onclick="resetCounter();" >0</button>
                         </div>
                     </div>
                 </div>
@@ -113,10 +127,10 @@
                     <div class="menurow">
                         <input type="checkbox" id="leadingzero" name="leadingzero" onclick="optionsChanged();" /><label for="leadingzero">Leading zero</label>
                     </div>
-                    <div class="menurow">
+                    <div class="menurow clockmodecontrols">
                         <input type="checkbox" id="showtenths" name="showtenths" onclick="optionsChanged();" /><label for="showtenths">Show tenths</label>
                     </div>
-                    <div class="menurow">
+                    <div class="menurow clockmodecontrols">
                         Display format
                         <select name="format" id="format" onchange="optionsChanged();">
                             <option value="-1" selected>Automatic from start time</option>
@@ -126,6 +140,9 @@
                             <option value="3">m:ss</option>
                             <option value="4">mm:ss</option>
                         </select>
+                    </div>
+                    <div class="menurow countermodecontrols">
+                        <label for="counterwidth">Pad to </label><input type="number" id="counterwidth" name="counterwidth" min="0" max="10" onclick="optionsChanged();" /><label for="counterwidth"> characters</label>
                     </div>
                 </div>
             </div>
