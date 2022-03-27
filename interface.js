@@ -6,6 +6,8 @@ let counterModeCheckbox = null;
 let clockInstructions = null;
 let counterInstructions = null;
 
+let activeClockDesign = null;
+
 let optionsDesc = {
     "countermode" : {
         "type" : "radio",
@@ -672,27 +674,12 @@ function refreshClock() {
     if (clock == null)
         return;
 
-    let canvasDiv = document.getElementById("screen");
-    let canvas = document.getElementById("canvas");
-
-    canvas.width = canvasDiv.clientWidth;
-    canvas.height = canvasDiv.clientHeight;
-
-    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-
     if (optionsValues["displayclock"]) {
         let xPosPercent = optionsValues["xpospc"];
         let yPosPercent = optionsValues["ypospc"];
-
-        let clockX = Math.floor(canvas.width * xPosPercent / 100.0);
-        let clockY = Math.floor(canvas.height * yPosPercent / 100.0);
-
         let xPosAnchor = optionsValues["xposanchor"] === "right";
         let yPosAnchor = optionsValues["yposanchor"] === "bottom";
-
-        /* Scale the character up as if the screen size is 576 lines */
-        let scaleY = canvas.height / 576.0;
-        scaleY *= optionsValues["scalefactor"] / 100.0;
+        let scaleY = optionsValues["scalefactor"] / 100.0;
         let scaleX = scaleY;
 
         let timeString;
@@ -705,7 +692,7 @@ function refreshClock() {
                 optionsValues["leadingzero"], false, optionsValues["showtenths"] ? 1 : 0);
         }
 
-        drawClock(canvas, timeString, clockX, clockY,
+        activeClockDesign.drawClock(timeString, xPosPercent, yPosPercent,
                 optionsValues["fgcolor"],
                 xPosAnchor, yPosAnchor,
                 scaleX, scaleY,
@@ -715,6 +702,9 @@ function refreshClock() {
                 parseInt(optionsValues["shadowdir"]),
                 optionsValues["showborder"]
         );
+    }
+    else {
+        activeClockDesign.clearClock();
     }
 
     /* If a backwards-counting clock has reached zero, stop */
@@ -989,6 +979,9 @@ function initialisePost() {
 
 function initialise() {
     let errDiv = document.getElementById("errors");
+    let canvasDiv = document.getElementById("screen");
+    let canvas = document.getElementById("canvas");
+
     errDiv.innerText = "Loading, please wait...";
 
     /* Start with all menu sections collapsed */
@@ -999,7 +992,7 @@ function initialise() {
     hideOptionsSection("save");
     hideOptionsSection("about");
 
-    loadFont(initialisePost);
+    activeClockDesign = new MicroCanvasClockDesign(canvas, canvasDiv, initialisePost);
 
     countControl = document.getElementById("count");
     counterModeCheckbox = document.getElementById("countermode");
