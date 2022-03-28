@@ -6,10 +6,12 @@
         <meta name="author" content="Graeme Cole">
         <meta name="description" content="Old TV countdown clock mockup">
         <link rel="stylesheet" type="text/css" href="interface.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet">
     </head>
     <body onload="initialise();">
         <script src="font.js?bump=1"></script>
         <script src="draw.js?bump=1"></script>
+        <script src="htmldraw.js?bump=1"></script>
         <script src="clock.js?bump=2"></script>
         <script src="interface.js?bump=2"></script>
 
@@ -128,7 +130,14 @@
                 </div>
                 <div class="sectionbody" id="formatsection">
                     <div class="menurow">
-                        <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display clock</label>
+                        <label for="clockdesign">Design</label>
+                        <select name="clockdesign" id="clockdesign" onchange="clockDesignChanged();">
+                            <option value="0" selected>BBC Micro</option>
+                            <option value="1">This century</option>
+                        </select>
+                    </div>
+                    <div class="menurow">
+                        <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display on</label>
                     </div>
                     <div class="menurow">
                         <input type="checkbox" id="showborder" name="showborder" onclick="optionsChanged();" checked /><label for="showborder">Show border</label>
@@ -140,7 +149,7 @@
                         <input type="checkbox" id="showtenths" name="showtenths" onclick="optionsChanged();" /><label for="showtenths">Show tenths</label>
                     </div>
                     <div class="menurow clockmodecontrols">
-                        Display format
+                        <label for="format">Display format</label>
                         <select name="format" id="format" onchange="optionsChanged();">
                             <option value="-1" selected>Automatic from start time</option>
                             <option value="-2">Automatic from current time</option>

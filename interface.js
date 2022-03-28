@@ -7,6 +7,8 @@ let clockInstructions = null;
 let counterInstructions = null;
 
 let activeClockDesign = null;
+let microClockDesign = null;
+let boxClockDesign = null;
 
 let optionsDesc = {
     "countermode" : {
@@ -20,6 +22,12 @@ let optionsDesc = {
         "id" : "displayclock",
         "category" : "options",
         "default" : true
+    },
+    "clockdesign" : {
+        "type" : "select",
+        "id" : "clockdesign",
+        "category" : "options",
+        "default" : "0"
     },
     "startminutes" : {
         "type" : "number",
@@ -648,6 +656,20 @@ function changeMode() {
     optionsChanged();
 }
 
+function clockDesignChanged() {
+    enableSaveButton();
+    refreshOptions();
+
+    activeClockDesign.clearClock();
+    if (optionsValues["clockdesign"] === "0") {
+        activeClockDesign = microClockDesign;
+    }
+    else {
+        activeClockDesign = boxClockDesign;
+    }
+    refreshClock();
+}
+
 function countChanged() {
     let newValue = parseInt(countControl.value);
     if (!isNaN(newValue)) {
@@ -739,6 +761,7 @@ function refreshClockTimeout() {
 function refreshConfiguration() {
     startTimeChanged();
     changeMode();
+    clockDesignChanged();
     refreshOptions();
     refreshAppearance();
     refreshPosition();
@@ -992,7 +1015,9 @@ function initialise() {
     hideOptionsSection("save");
     hideOptionsSection("about");
 
-    activeClockDesign = new MicroCanvasClockDesign(canvas, canvasDiv, initialisePost);
+    microClockDesign = new MicroCanvasClockDesign(canvas, canvasDiv, initialisePost);
+    boxClockDesign = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
+    activeClockDesign = microClockDesign;
 
     countControl = document.getElementById("count");
     counterModeCheckbox = document.getElementById("countermode");
