@@ -136,8 +136,8 @@ class HTMLBoxClockDesign extends ClockDesign {
 
         /* Replace spaces with &numsp and - with &minus so that space padding
          * works and the minus sign looks a bit more minusy. */
-        string = string.replace(" ", "&numsp;");
-        string = string.replace("-", "&minus;");
+        string = string.replace(/ /g, "&numsp;");
+        string = string.replace(/-/g, "&minus;");
         this.div.innerHTML = string;
     }
 
