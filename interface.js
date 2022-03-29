@@ -62,7 +62,7 @@ let optionsDesc = {
     "showborder" : {
         "type" : "checkbox",
         "id" : "showborder",
-        "category" : "options",
+        "category" : "appearance",
         "default" : true
     },
     "format" : {
@@ -667,6 +667,8 @@ function clockDesignChanged() {
     else {
         activeClockDesign = boxClockDesign;
     }
+    applyAppearanceOptions(activeClockDesign);
+    applyPositionOptions(activeClockDesign);
     refreshClock();
 }
 
@@ -675,6 +677,13 @@ function countChanged() {
     if (!isNaN(newValue)) {
         setCounter(newValue);
     }
+}
+
+function applyAppearanceOptions(clockDesign) {
+    clockDesign.setTextColour(optionsValues["fgcolor"]);
+    clockDesign.setOutline(optionsValues["outlinecolor"], optionsValues["outlinesize"]);
+    clockDesign.setShadow(optionsValues["shadowlength"], parseInt(optionsValues["shadowdir"]));
+    clockDesign.setBorder(optionsValues["showborder"]);
 }
 
 function refreshAppearance() {
@@ -686,10 +695,19 @@ function refreshAppearance() {
     else {
         document.body.style.backgroundColor = document.getElementById("bgcolor").value;
     }
+    applyAppearanceOptions(activeClockDesign);
+}
+
+function applyPositionOptions(clockDesign) {
+    clockDesign.setPosition(optionsValues["xpospc"], optionsValues["ypospc"],
+        optionsValues["xposanchor"] === "right",
+        optionsValues["yposanchor"] === "bottom");
+    clockDesign.setScaleFactor(optionsValues["scalefactor"] / 100);
 }
 
 function refreshPosition() {
     setOptionValuesInCategory("position");
+    applyPositionOptions(activeClockDesign);
 }
 
 function refreshClock() {
@@ -697,13 +715,6 @@ function refreshClock() {
         return;
 
     if (optionsValues["displayclock"]) {
-        let xPosPercent = optionsValues["xpospc"];
-        let yPosPercent = optionsValues["ypospc"];
-        let xPosAnchor = optionsValues["xposanchor"] === "right";
-        let yPosAnchor = optionsValues["yposanchor"] === "bottom";
-        let scaleY = optionsValues["scalefactor"] / 100.0;
-        let scaleX = scaleY;
-
         let timeString;
         if (parseInt(optionsValues["countermode"]) !== 0) {
             timeString = formatNumber(countValue, optionsValues["counterwidth"],
@@ -714,16 +725,7 @@ function refreshClock() {
                 optionsValues["leadingzero"], false, optionsValues["showtenths"] ? 1 : 0);
         }
 
-        activeClockDesign.drawClock(timeString, xPosPercent, yPosPercent,
-                optionsValues["fgcolor"],
-                xPosAnchor, yPosAnchor,
-                scaleX, scaleY,
-                optionsValues["outlinecolor"],
-                optionsValues["outlinesize"],
-                optionsValues["shadowlength"],
-                parseInt(optionsValues["shadowdir"]),
-                optionsValues["showborder"]
-        );
+        activeClockDesign.drawClock(timeString);
     }
     else {
         activeClockDesign.clearClock();
@@ -953,6 +955,8 @@ function keyListener(e) {
 }
 
 function windowSizeChanged() {
+    if (activeClockDesign)
+        activeClockDesign.styleChanged = true;
     refreshClock();
 }
 

@@ -10,6 +10,15 @@ function tripleToRGBString(colour) {
     return s;
 }
 
+function tripleToRGBAString(colour, alpha) {
+    s = "rgba(";
+    for (let i = 0; i < 3; ++i) {
+        s += colour[i].toString() + ", ";
+    }
+    s += alpha.toString() + ")";
+    return s;
+}
+
 class HTMLBoxClockDesign extends ClockDesign {
     constructor(container, uniqueClassName) {
         super();
@@ -22,24 +31,39 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.div.style.fontWeight = "bold";
         this.div.style.display = "none"; // don't display anything yet
         this.container.appendChild(this.div);
+
+        this.showBorder = true;
+        this.borderColour = [ 0, 0, 0 ];
+        this.borderAlpha = 0.7;
+        this.styleChanged = true;
+        this.applyStyle();
     }
 
-    /* scaleX is ignored, and the value of outlineSize is ignored except
-     * to see if it's zero or not. */
-    drawClock(string, xPosPercent, yPosPercent, mainColour,
-            xPosRightEdge=false, yPosBottomEdge=false,
-            scaleX=1, scaleY=1, outlineColour=null, outlineSize=0,
-            shadowLength=0, shadowDirection=SOUTHEAST, showBorder=true) {
-        let charHeightPx = scaleY * this.container.clientHeight / 15;
+    setOutline(outlineColour, outlineSize) {
+        if (outlineSize > 0)
+            outlineSize = 0.5;
+        else
+            outlineSize = 0;
+        super.setOutline(outlineColour, outlineSize);
+    }
+
+    setBorderColour(borderColour, borderAlpha) {
+        this.borderColour = borderColour;
+        this.borderAlpha = borderAlpha;
+        this.styleChanged = true;
+    }
+
+    applyStyle() {
+        let charHeightPx = this.scaleFactor * this.container.clientHeight / 15;
         let lengthUnitPx = charHeightPx / 40;
         this.div.style.fontSize = charHeightPx.toString() + "px";
-        this.div.style.color = tripleToRGBString(mainColour);
+        this.div.style.color = tripleToRGBString(this.textColour);
         this.div.style.display = "block";
         this.div.style.paddingLeft = (lengthUnitPx * 10).toString() + "px";
         this.div.style.paddingRight = (lengthUnitPx * 10).toString() + "px";
 
-        if (showBorder) {
-            this.div.style.backgroundColor = "rgba(0, 0, 0, 70%)";
+        if (this.showBorder) {
+            this.div.style.backgroundColor = tripleToRGBAString(this.borderColour, this.borderAlpha);
         }
         else {
             this.div.style.backgroundColor = null;
@@ -47,25 +71,21 @@ class HTMLBoxClockDesign extends ClockDesign {
 
         let shadows = [];
 
-        if (outlineSize > 0) {
+        if (this.outlineSize > 0) {
             /* We abuse shadows to make an outline, so we don't allow an
              * outline size of greater than 0.5 or it looks awful. */
-            outlineSize = 0.5;
-            if (outlineColour == null) {
-                outlineColour = [0, 0, 0];
-            }
             for (let d = 0; d < 8; ++d) {
-                let shadowPx = outlineSize * lengthUnitPx;
+                let shadowPx = this.outlineSize * lengthUnitPx;
                 shadows.push((directionToXY[d][0] * shadowPx).toString() + "px " +
                     (directionToXY[d][1] * shadowPx).toString() + "px " +
-                    (shadowPx).toString() + "px " +
-                    tripleToRGBString(outlineColour));
+                    shadowPx.toString() + "px " +
+                    tripleToRGBString(this.outlineColour));
             }
         }
 
-        if (shadowLength > 0) {
-            let horizShadow = directionToXY[shadowDirection][0] * shadowLength * lengthUnitPx;
-            let vertShadow = directionToXY[shadowDirection][1] * shadowLength * lengthUnitPx;
+        if (this.shadowLength > 0) {
+            let horizShadow = directionToXY[this.shadowDirection][0] * this.shadowLength * lengthUnitPx;
+            let vertShadow = directionToXY[this.shadowDirection][1] * this.shadowLength * lengthUnitPx;
             let blurRadius = (Math.abs(horizShadow) > Math.abs(vertShadow) ? Math.abs(horizShadow) : Math.abs(vertShadow));
             shadows.push(horizShadow.toString() + "px " +
                 vertShadow.toString() + "px " +
@@ -85,22 +105,29 @@ class HTMLBoxClockDesign extends ClockDesign {
         }
         this.div.style.textShadow = shadowString;
 
-        if (xPosRightEdge) {
-            this.div.style.right = (100 - xPosPercent).toString() + "%";
+        if (this.xPosRightEdge) {
+            this.div.style.right = (100 - this.xPosPercent).toString() + "%";
             this.div.style.left = null;
         }
         else {
-            this.div.style.left = xPosPercent.toString() + "%";
+            this.div.style.left = this.xPosPercent.toString() + "%";
             this.div.style.right = null;
         }
 
-        if (yPosBottomEdge) {
+        if (this.yPosBottomEdge) {
             this.div.style.top = null;
-            this.div.style.bottom = (100 - yPosPercent).toString() + "%";
+            this.div.style.bottom = (100 - this.yPosPercent).toString() + "%";
         }
         else {
-            this.div.style.top = yPosPercent.toString() + "%";
+            this.div.style.top = this.yPosPercent.toString() + "%";
             this.div.style.bottom = null;
+        }
+        this.styleChanged = false;
+    }
+
+    drawClock(string) {
+        if (this.styleChanged) {
+            this.applyStyle();
         }
 
         /* Replace spaces with &numsp and - with &minus so that space padding
@@ -112,5 +139,6 @@ class HTMLBoxClockDesign extends ClockDesign {
 
     clearClock() {
         this.div.style.display = "none";
+        this.styleChanged = true;
     }
 }

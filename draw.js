@@ -27,13 +27,79 @@ const NORTHWEST = 7;
 
 class ClockDesign {
     constructor() {
+        this.xPosPercent = 85;
+        this.yPosPercent = 85;
+        this.xPosRightEdge = true;
+        this.yPosBottomEdge = true;
+        this.scaleFactor = 1;
+        this.outlineColour = [ 0, 0, 0 ];
+        this.outlineSize = 1;
+        this.shadowLength = 3;
+        this.shadowDirection = SOUTHEAST;
+        this.showBorder = true;
+        this.textColour = [ 255, 255, 255 ];
+        this.styleChanged = true;
     }
 
-    drawClock(string, xPosPercent, yPosPercent, mainColour,
-            xPosRightEdge=false, yPosBottomEdge=false,
-            scaleX=1, scaleY=1, outlineColour=null, outlineSize=0,
-            shadowLength=0, shadowDirection=SOUTHEAST, showBorder=true) {
+    drawClock(string) {
         /* To be overridden by subclass */
+    }
+
+    setPosition(xPosPercent, yPosPercent, xPosRightEdge, yPosBottomEdge) {
+        this.xPosPercent = xPosPercent;
+        this.yPosPercent = yPosPercent;
+        this.xPosRightEdge = xPosRightEdge;
+        this.yPosBottomEdge = yPosBottomEdge;
+        this.styleChanged = true;
+    }
+
+    setScaleFactor(scaleFactor) {
+        this.scaleFactor = scaleFactor;
+        this.styleChanged = true;
+    }
+
+    /* outlineColour: three-element array [red, green, blue], with each
+     * component in the range 0-255.
+     * outlineSize: size of the text outline, in units about 1/41 of the
+     * character height. */
+    setOutline(outlineColour, outlineSize) {
+        if (outlineColour == null)
+            outlineColour = [ 0, 0, 0 ];
+        this.outlineColour = outlineColour;
+        this.outlineSize = outlineSize;
+        this.styleChanged = true;
+    }
+
+    /* textColour: three element array [red, green, blue], with each component
+     * in the range 0-255. */
+    setTextColour(textColour) {
+        this.textColour = textColour;
+        this.styleChanged = true;
+    }
+
+    /* shadowLength: length of each character's shadow, in units about 1/41 of
+     * the character height.
+     * shadowDirection: NORTH, NORTHEAST, etc.
+     */
+    setShadow(shadowLength, shadowDirection) {
+        this.shadowLength = shadowLength;
+        this.shadowDirection = shadowDirection;
+        this.styleChanged = true;
+    }
+
+    /* showBorder: true to show a border around the clock, false not to. */
+    setBorder(showBorder) {
+        this.showBorder = showBorder;
+        this.styleChanged = true;
+    }
+
+    /* borderColour: [ red, green, blue ], each component 0-255.
+     * borderAlpha: 0.0-1.0, transparency of the border, especially where it
+     * appears as a box background for the clock. */
+    setBorderColour(borderColour, borderAlpha) {
+        this.borderColour = borderColour;
+        this.borderAlpha = borderAlpha;
+        this.styleChanged = true;
     }
 }
 
@@ -259,44 +325,27 @@ class CanvasClockDesign extends ClockDesign {
      *    digits 0-9, space, colon (:), dot (.), minus (-)
      * Any other characters in the string are ignored.
      *
-     * mainColour and outlineColour should be a three element array of
-     * [ red, green, blue ], where each value is in the range 0-255.
-     *
-     * The units of outlineSize and shadowLength are pixels of the source
-     * images.
-     *
-     * shadowDirection, if given, must be one of the compass point constants
-     * above (NORTH, NORTHEAST, etc). The shadow is the same colour as
-     * outlineColour. Set outlineSize or shadowLength to 0 to disable
-     * the outline or shadow.
-     *
-     * scaleX and scaleY can be varied to enlarge or shrink the resulting clock
-     * image by a scale factor before putting it onto the canvas.
-     *
      * The constructor must have finished loading the image files and called
      * finishedCallback() before anything calls this method.
      */
-    drawClock(string, xPosPercent, yPosPercent, mainColour,
-            xPosRightEdge=false, yPosBottomEdge=false,
-            scaleX=1, scaleY=1, outlineColour=null, outlineSize=0,
-            shadowLength=0, shadowDirection=SOUTHEAST, showBorder=true) {
+    drawClock(string) {
 		let destCanvas = this.canvas;
         let canvasContainer = this.canvasContainer;
 
         this.clearClock();
 
-        let xstart = Math.floor(destCanvas.width * xPosPercent / 100.0);
-        let ystart = Math.floor(destCanvas.height * yPosPercent / 100.0);
+        let xstart = Math.floor(destCanvas.width * this.xPosPercent / 100.0);
+        let ystart = Math.floor(destCanvas.height * this.yPosPercent / 100.0);
 
         /* Scale the characters by the ratio of the actual canvas height and
          * the screen height assumed by the PNG files */
-        scaleY *= destCanvas.height / this.fontScreenHeight;
-        scaleX *= destCanvas.height / this.fontScreenHeight;
+        let scaleY = this.scaleFactor * destCanvas.height / this.fontScreenHeight;
+        let scaleX = this.scaleFactor * destCanvas.height / this.fontScreenHeight;
 
         let destContext = destCanvas.getContext("2d");
 
         /* Get our basic clock image based on this string */
-        let clockImage = this.makeClockImage(string, showBorder);
+        let clockImage = this.makeClockImage(string, this.showBorder);
 
         /* Clock canvas: just the image of the numbers with no outline, padding
          * or shadow. */
@@ -312,7 +361,7 @@ class CanvasClockDesign extends ClockDesign {
 
         /* Padding: make our intermediate canvases the size of the clock image,
          * plus the expected outline and shadow */
-        let padding = shadowLength + outlineSize;
+        let padding = this.shadowLength + this.outlineSize;
 
         clockCanvas.width = clockImage.width;
         clockCanvas.height = clockImage.height;
@@ -325,12 +374,12 @@ class CanvasClockDesign extends ClockDesign {
         let outlineContext = outlineCanvas.getContext("2d");
         let finishedContext = finishedCanvas.getContext("2d");
 
-        if (outlineColour != null) {
+        if (this.outlineColour != null) {
             /* Draw the outline, in outlineColour */
-            CanvasClockDesign.changeNonTransparentPixelColour(clockImage, outlineColour);
+            CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.outlineColour);
             clockContext.putImageData(clockImage, 0, 0);
-            for (let dy = -outlineSize; dy <= outlineSize; ++dy) {
-                for (let dx = -outlineSize; dx <= outlineSize; ++dx) {
+            for (let dy = -this.outlineSize; dy <= this.outlineSize; ++dy) {
+                for (let dx = -this.outlineSize; dx <= this.outlineSize; ++dx) {
                     outlineContext.drawImage(clockCanvas, padding + dx, padding + dy);
                 }
             }
@@ -340,23 +389,23 @@ class CanvasClockDesign extends ClockDesign {
 
             /* Draw the shadow by smearing the outline in a particular
              * direction */
-            for (let dist = 1; dist <= shadowLength; ++dist) {
+            for (let dist = 1; dist <= this.shadowLength; ++dist) {
                 finishedContext.drawImage(outlineCanvas,
-                        directionToXY[shadowDirection][0] * dist,
-                        directionToXY[shadowDirection][1] * dist);
+                        directionToXY[this.shadowDirection][0] * dist,
+                        directionToXY[this.shadowDirection][1] * dist);
             }
         }
 
         /* Finally, draw the actual numbers on top of the outline, using the
          * main colour. */
-        CanvasClockDesign.changeNonTransparentPixelColour(clockImage, mainColour);
+        CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.textColour);
         clockContext.putImageData(clockImage, 0, 0);
         finishedContext.drawImage(clockCanvas, padding, padding);
 
-        if (yPosBottomEdge) {
+        if (this.yPosBottomEdge) {
             ystart -= finishedCanvas.height * scaleY;
         }
-        if (xPosRightEdge) {
+        if (this.xPosRightEdge) {
             xstart -= finishedCanvas.width * scaleX;
         }
 
