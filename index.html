@@ -173,9 +173,15 @@
                 <div class="sectionbody sectionbodycolourtrim" id="colourtrimsection">
                     <div class="colourtable">
                         <div class="colourcontrol">
-                            <div class="colourcontroltitle">Background</div>
+                            <div class="colourcontroltitle">Page<br>background</div>
                             <div class="colourpicker">
                                 <input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#00b140" />
+                            </div>
+                        </div>
+                        <div class="colourcontrol bordercolourcontrol">
+                            <div class="colourcontroltitle">Clock<br>background</div>
+                            <div class="colourpicker">
+                                <input type="color" name="clockbgcolor" id="clockbgcolor" onchange="appearanceChanged();" value="#000000" />
                             </div>
                         </div>
                         <div class="colourcontrol">
@@ -199,8 +205,7 @@
                         <tr>
                             <td><label for="shadowlength">Shadow length</label></td>
                             <td>
-                                <input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="50" />
-                                <label for="shadowdir">direction</label>
+                                <input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="50" /><label for="shadowdir">direction</label>
                                 <select name="shadowdir" id="shadowdir" onchange="appearanceChanged();">
                                     <option value="0">&#x2B06; N</option>
                                     <option value="1">&#x2B08; NE</option>
@@ -211,6 +216,12 @@
                                     <option value="6">&#x2B05; W</option>
                                     <option value="7">&#x2B09; NW</option>
                                 </select>
+                            </td>
+                        </tr>
+                        <tr class="bordercolourcontrol">
+                            <td><label for="clockbgalpha">Clock BG opacity</label></td>
+                            <td>
+                                <input type="number" id="clockbgalpha" name="clockbgalpha" min="0" max="100" value="70" oninput="appearanceChanged();" />%
                             </td>
                         </tr>
                     </table>

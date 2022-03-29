@@ -89,6 +89,18 @@ let optionsDesc = {
         "category" : "appearance",
         "default" : [ 255, 255, 255 ]
     },
+    "clockbgcolor" : {
+        "type" : "color",
+        "id" : "clockbgcolor",
+        "category" : "appearance",
+        "default" : [ 0, 0, 0 ],
+    },
+    "clockbgalpha" : {
+        "type" : "number",
+        "id" : "clockbgalpha",
+        "category" : "appearance",
+        "default" : 70
+    },
     "outlinecolor" : {
         "type" : "color",
         "id" : "outlinecolor",
@@ -669,6 +681,16 @@ function clockDesignChanged() {
     }
     applyAppearanceOptions(activeClockDesign);
     applyPositionOptions(activeClockDesign);
+
+    let borderColourControls = document.getElementsByClassName("bordercolourcontrol");
+    for (let i = 0; i < borderColourControls.length; ++i) {
+        if (activeClockDesign.supportsClockBackground()) {
+            borderColourControls[i].style.display = null;
+        }
+        else {
+            borderColourControls[i].style.display = "none";
+        }
+    }
     refreshClock();
 }
 
@@ -684,6 +706,9 @@ function applyAppearanceOptions(clockDesign) {
     clockDesign.setOutline(optionsValues["outlinecolor"], optionsValues["outlinesize"]);
     clockDesign.setShadow(optionsValues["shadowlength"], parseInt(optionsValues["shadowdir"]));
     clockDesign.setBorder(optionsValues["showborder"]);
+    if (clockDesign.supportsClockBackground()) {
+        clockDesign.setClockBackgroundColour(optionsValues["clockbgcolor"], optionsValues["clockbgalpha"] / 100);
+    }
 }
 
 function refreshAppearance() {

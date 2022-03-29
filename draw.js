@@ -87,7 +87,8 @@ class ClockDesign {
         this.styleChanged = true;
     }
 
-    /* showBorder: true to show a border around the clock, false not to. */
+    /* showBorder: true to show a border or background around the clock, false
+     * not to. */
     setBorder(showBorder) {
         this.showBorder = showBorder;
         this.styleChanged = true;
@@ -96,10 +97,14 @@ class ClockDesign {
     /* borderColour: [ red, green, blue ], each component 0-255.
      * borderAlpha: 0.0-1.0, transparency of the border, especially where it
      * appears as a box background for the clock. */
-    setBorderColour(borderColour, borderAlpha) {
-        this.borderColour = borderColour;
-        this.borderAlpha = borderAlpha;
+    setClockBackgroundColour(colour, clockBackgroundAlpha) {
+        this.clockBackgroundColour = clockBackgroundColour;
+        this.clockBackgroundAlpha = clockBackgroundAlpha;
         this.styleChanged = true;
+    }
+
+    supportsClockBackground() {
+        return false;
     }
 }
 

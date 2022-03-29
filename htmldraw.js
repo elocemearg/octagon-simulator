@@ -33,8 +33,8 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.container.appendChild(this.div);
 
         this.showBorder = true;
-        this.borderColour = [ 0, 0, 0 ];
-        this.borderAlpha = 0.7;
+        this.clockBackgroundColour = [ 0, 0, 0 ];
+        this.clockBackgroundAlpha = 0.7;
         this.styleChanged = true;
         this.applyStyle();
     }
@@ -47,10 +47,14 @@ class HTMLBoxClockDesign extends ClockDesign {
         super.setOutline(outlineColour, outlineSize);
     }
 
-    setBorderColour(borderColour, borderAlpha) {
-        this.borderColour = borderColour;
-        this.borderAlpha = borderAlpha;
+    setClockBackgroundColour(clockBackgroundColour, clockBackgroundAlpha) {
+        this.clockBackgroundColour = clockBackgroundColour;
+        this.clockBackgroundAlpha = clockBackgroundAlpha;
         this.styleChanged = true;
+    }
+
+    supportsClockBackground() {
+        return true;
     }
 
     applyStyle() {
@@ -63,7 +67,7 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.div.style.paddingRight = (lengthUnitPx * 10).toString() + "px";
 
         if (this.showBorder) {
-            this.div.style.backgroundColor = tripleToRGBAString(this.borderColour, this.borderAlpha);
+            this.div.style.backgroundColor = tripleToRGBAString(this.clockBackgroundColour, this.clockBackgroundAlpha);
         }
         else {
             this.div.style.backgroundColor = null;

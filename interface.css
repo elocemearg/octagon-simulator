@@ -83,7 +83,7 @@ div.colourtable {
 div.colourcontrol {
     display: inline-block;
     text-align: center;
-    min-width: 80px;
+    min-width: 70px;
 }
 
 div.colourcontrol div {
@@ -92,6 +92,7 @@ div.colourcontrol div {
 
 div.colourcontroltitle {
     text-align: center;
+    font-size: 9pt;
 }
 
 div.colourpicker {
