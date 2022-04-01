@@ -8,6 +8,7 @@ let counterInstructions = null;
 
 let activeClockDesign = null;
 let microClockDesign = null;
+let nixieClockDesign = null;
 let boxClockDesign = null;
 
 let optionsDesc = {
@@ -676,6 +677,9 @@ function clockDesignChanged() {
     if (optionsValues["clockdesign"] === "0") {
         activeClockDesign = microClockDesign;
     }
+    else if (optionsValues["clockdesign"] === "1") {
+        activeClockDesign = nixieClockDesign;
+    }
     else {
         activeClockDesign = boxClockDesign;
     }
@@ -1029,6 +1033,14 @@ function initialisePost() {
     }
 }
 
+let numCanvasClocks = 0;
+function canvasClockLoaded() {
+    numCanvasClocks--;
+    if (numCanvasClocks == 0) {
+        initialisePost();
+    }
+}
+
 function initialise() {
     let errDiv = document.getElementById("errors");
     let canvasDiv = document.getElementById("screen");
@@ -1044,7 +1056,9 @@ function initialise() {
     hideOptionsSection("save");
     hideOptionsSection("about");
 
-    microClockDesign = new MicroCanvasClockDesign(canvas, canvasDiv, initialisePost);
+    numCanvasClocks = 2;
+    microClockDesign = new MicroCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
+    nixieClockDesign = new NixieCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     boxClockDesign = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
     activeClockDesign = microClockDesign;
 

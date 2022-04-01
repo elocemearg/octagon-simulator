@@ -4,6 +4,12 @@ const MICRO_INTER_CHAR_SPACE = 18;
 const MICRO_BORDER_TO_CHAR_SPACE = 18;
 const MICRO_ASSUMED_SCREEN_HEIGHT = 576;
 
+/* Nixie: NixieCanvasClockDesign */
+const NIXIE_DESIGN_NAME = "nixie";
+const NIXIE_INTER_CHAR_SPACE = 0;
+const NIXIE_BORDER_TO_CHAR_SPACE = 12;
+const NIXIE_ASSUMED_SCREEN_HEIGHT = 1500;
+
 const directionToXY = [
     [  0, -1 ], // north
     [  1, -1 ], // northeast
@@ -127,10 +133,9 @@ class CanvasClockDesign extends ClockDesign {
      *     character images. Each unit is equal to a pixel in the source
      *     character images.
      *
-     * borderToCharSpace: the number of units of space to leave between the
-     *     left border image and the first character image, and between the
-     *     last character image and the right border. Each unit is equal to a
-     *     pixel in the source character images.
+     * borderToCharVerticalSpace: the number of units of space to leave between
+     *     the top border image and the top of the character images, and
+     *     between the bottom of the character images and the bottom border.
      *
      * fontScreenHeight: the height of the screen, in pixels, assumed by the
      *     character images. If drawClock is called with scaleX and scaleY
@@ -139,21 +144,28 @@ class CanvasClockDesign extends ClockDesign {
      *     in the canvas. For the "micro" design, the character height is 41
      *     and fontScreenHeight is 576.
      *
+     * transparentImages: true if the background of the images is transparent
+     *     and so we can use the same images to form the outline and shadow.
+     *     If this is false, text outline and shadow options will have no
+     *     effect.
+     *
      * finishedCallback: function which will be called when all character URLs
      *     are successfully loaded, to notify the caller that the object is now
      *     available to be used.
      */
     constructor(canvas, canvasContainer, characterUrls, interCharSpace,
-            borderToCharSpace, fontScreenHeight, finishedCallback) {
+            borderToCharVerticalSpace, fontScreenHeight, transparentImages,
+            finishedCallback) {
         super();
         this.characterImages = [];
         this.characterCanvases = [];
         this.numImagesLoaded = 0;
         this.interCharSpace = interCharSpace;
-        this.borderToCharSpace = borderToCharSpace;
+        this.borderToCharVerticalSpace = borderToCharVerticalSpace;
         this.canvas = canvas;
         this.canvasContainer = canvasContainer;
         this.fontScreenHeight = fontScreenHeight;
+        this.transparentImages = transparentImages;
 
         for (let i = 0; i < characterUrls.length; ++i) {
             this.characterImages.push(null);
@@ -275,7 +287,7 @@ class CanvasClockDesign extends ClockDesign {
                 if (charsPrinted > 0) {
                     /* Leave some space after the last character, and draw the
                      * top and bottom border above and below this space */
-                    if (border) {
+                    if (border && this.interCharSpace > 0) {
                         this.drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, this.interCharSpace);
                     }
                     xpos += this.interCharSpace;
@@ -287,7 +299,7 @@ class CanvasClockDesign extends ClockDesign {
                 }
 
                 /* Draw the character, a set distance below the top border */
-                this.drawCharacter(imageData, charIndex, xpos, ystart + this.borderToCharSpace);
+                this.drawCharacter(imageData, charIndex, xpos, ystart + this.borderToCharVerticalSpace);
 
                 /* Advance xpos by the width of this character */
                 xpos += charWidth;
@@ -379,7 +391,7 @@ class CanvasClockDesign extends ClockDesign {
         let outlineContext = outlineCanvas.getContext("2d");
         let finishedContext = finishedCanvas.getContext("2d");
 
-        if (this.outlineColour != null) {
+        if (this.transparentImages && this.outlineColour != null) {
             /* Draw the outline, in outlineColour */
             CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.outlineColour);
             clockContext.putImageData(clockImage, 0, 0);
@@ -403,7 +415,9 @@ class CanvasClockDesign extends ClockDesign {
 
         /* Finally, draw the actual numbers on top of the outline, using the
          * main colour. */
-        CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.textColour);
+        if (this.transparentImages) {
+            CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.textColour);
+        }
         clockContext.putImageData(clockImage, 0, 0);
         finishedContext.drawImage(clockCanvas, padding, padding);
 
@@ -435,6 +449,14 @@ class MicroCanvasClockDesign extends CanvasClockDesign {
     constructor(canvas, canvasContainer, finishedCallback) {
         super(canvas, canvasContainer, characterDesignUrls[MICRO_DESIGN_NAME],
             MICRO_INTER_CHAR_SPACE, MICRO_BORDER_TO_CHAR_SPACE,
-            MICRO_ASSUMED_SCREEN_HEIGHT, finishedCallback);
+            MICRO_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
+    }
+}
+
+class NixieCanvasClockDesign extends CanvasClockDesign {
+    constructor(canvas, canvasContainer, finishedCallback) {
+        super(canvas, canvasContainer, characterDesignUrls[NIXIE_DESIGN_NAME],
+            NIXIE_INTER_CHAR_SPACE, NIXIE_BORDER_TO_CHAR_SPACE,
+            NIXIE_ASSUMED_SCREEN_HEIGHT, false, finishedCallback);
     }
 }
