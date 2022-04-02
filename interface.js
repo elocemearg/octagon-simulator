@@ -7,9 +7,10 @@ let clockInstructions = null;
 let counterInstructions = null;
 
 let activeClockDesign = null;
-let microClockDesign = null;
-let nixieClockDesign = null;
-let boxClockDesign = null;
+
+/* mapping of clock design short names ("e.g. "octagon", "nixie" - the values
+ * of the selections in the drop-down list) to ClockDesign objects. */
+let clockDesigns = {};
 
 let optionsDesc = {
     "countermode" : {
@@ -669,32 +670,30 @@ function changeMode() {
     optionsChanged();
 }
 
+function setClassVisible(className, visible) {
+    let elements = document.getElementsByClassName(className);
+    for (let i = 0; i < elements.length; ++i) {
+        elements[i].style.display = (visible ? null : "none");
+    }
+}
+
 function clockDesignChanged() {
     enableSaveButton();
     refreshOptions();
 
     activeClockDesign.clearClock();
-    if (optionsValues["clockdesign"] === "0") {
-        activeClockDesign = microClockDesign;
-    }
-    else if (optionsValues["clockdesign"] === "1") {
-        activeClockDesign = nixieClockDesign;
-    }
-    else {
-        activeClockDesign = boxClockDesign;
+    activeClockDesign = clockDesigns[optionsValues["clockdesign"]];
+    if (activeClockDesign == null) {
+        activeClockDesign = clockDesigns["htmlbox"];
     }
     applyAppearanceOptions(activeClockDesign);
     applyPositionOptions(activeClockDesign);
 
-    let borderColourControls = document.getElementsByClassName("bordercolourcontrol");
-    for (let i = 0; i < borderColourControls.length; ++i) {
-        if (activeClockDesign.supportsClockBackground()) {
-            borderColourControls[i].style.display = null;
-        }
-        else {
-            borderColourControls[i].style.display = "none";
-        }
-    }
+    setClassVisible("bordercolourcontrol", activeClockDesign.supportsClockBackground());
+    setClassVisible("textcolourcontrol", activeClockDesign.supportsTextColour());
+    setClassVisible("textoutlinecontrol", activeClockDesign.supportsTextOutline());
+    setClassVisible("textshadowcontrol", activeClockDesign.supportsTextShadow());
+
     refreshClock();
 }
 
@@ -706,9 +705,15 @@ function countChanged() {
 }
 
 function applyAppearanceOptions(clockDesign) {
-    clockDesign.setTextColour(optionsValues["fgcolor"]);
-    clockDesign.setOutline(optionsValues["outlinecolor"], optionsValues["outlinesize"]);
-    clockDesign.setShadow(optionsValues["shadowlength"], parseInt(optionsValues["shadowdir"]));
+    if (clockDesign.supportsTextColour()) {
+        clockDesign.setTextColour(optionsValues["fgcolor"]);
+    }
+    if (clockDesign.supportsTextOutline()) {
+        clockDesign.setOutline(optionsValues["outlinecolor"], optionsValues["outlinesize"]);
+    }
+    if (clockDesign.supportsTextShadow()) {
+        clockDesign.setShadow(optionsValues["shadowlength"], parseInt(optionsValues["shadowdir"]));
+    }
     clockDesign.setBorder(optionsValues["showborder"]);
     if (clockDesign.supportsClockBackground()) {
         clockDesign.setClockBackgroundColour(optionsValues["clockbgcolor"], optionsValues["clockbgalpha"] / 100);
@@ -1057,10 +1062,10 @@ function initialise() {
     hideOptionsSection("about");
 
     numCanvasClocks = 2;
-    microClockDesign = new MicroCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
-    nixieClockDesign = new NixieCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
-    boxClockDesign = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
-    activeClockDesign = microClockDesign;
+    clockDesigns["octagon"] = new OctagonCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
+    clockDesigns["nixie"] = new NixieCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
+    clockDesigns["htmlbox"] = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
+    activeClockDesign = clockDesigns["octagon"];
 
     countControl = document.getElementById("count");
     counterModeCheckbox = document.getElementById("countermode");

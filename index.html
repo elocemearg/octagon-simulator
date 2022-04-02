@@ -132,9 +132,9 @@
                     <div class="menurow">
                         <label for="clockdesign">Design</label>
                         <select name="clockdesign" id="clockdesign" onchange="clockDesignChanged();">
-                            <option value="0" selected>BBC Micro</option>
-                            <option value="1">Nixies</option>
-                            <option value="2">This century</option>
+                            <option value="octagon" selected>Octagon</option>
+                            <option value="nixie">Nixie tubes</option>
+                            <option value="htmlbox">This century</option>
                         </select>
                     </div>
                     <div class="menurow">
@@ -185,13 +185,13 @@
                                 <input type="color" name="clockbgcolor" id="clockbgcolor" onchange="appearanceChanged();" value="#000000" />
                             </div>
                         </div>
-                        <div class="colourcontrol">
+                        <div class="colourcontrol textcolourcontrol">
                             <div class="colourcontroltitle">Character</div>
                             <div class="colourpicker">
                                 <input type="color" name="fgcolor" id="fgcolor" onchange="appearanceChanged();" value="#ffffff" />
                             </div>
                         </div>
-                        <div class="colourcontrol">
+                        <div class="colourcontrol textoutlinecontrol">
                             <div class="colourcontroltitle">Outline</div>
                             <div class="colourpicker">
                                 <input type="color" name="outlinecolor" id="outlinecolor" onchange="appearanceChanged();" value="#000000" />
@@ -199,11 +199,11 @@
                         </div>
                     </div>
                     <table class="colourtrim">
-                        <tr>
+                        <tr class="textoutlinecontrol">
                             <td><label for="outlinesize">Outline size</label></td>
                             <td><input type="number" name="outlinesize" id="outlinesize" oninput="appearanceChanged();" value="1" min="0" max="20" /></td>
                         </tr>
-                        <tr>
+                        <tr class="textshadowcontrol">
                             <td><label for="shadowlength">Shadow length</label></td>
                             <td>
                                 <input type="number" name="shadowlength" id="shadowlength" value="3" oninput="appearanceChanged();" min="0" max="50" /><label for="shadowdir">direction</label>

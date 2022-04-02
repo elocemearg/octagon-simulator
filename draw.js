@@ -1,14 +1,14 @@
-/* Class: MicroCanvasClockDesign */
-const MICRO_DESIGN_NAME = "micro";
-const MICRO_INTER_CHAR_SPACE = 18;
-const MICRO_BORDER_TO_CHAR_SPACE = 18;
-const MICRO_ASSUMED_SCREEN_HEIGHT = 576;
+/* Class: OctagonCanvasClockDesign */
+const OCTAGON_DESIGN_NAME = "octagon";
+const OCTAGON_INTER_CHAR_SPACE = 18;
+const OCTAGON_BORDER_TO_CHAR_SPACE = 18;
+const OCTAGON_ASSUMED_SCREEN_HEIGHT = 576;
 
 /* Nixie: NixieCanvasClockDesign */
 const NIXIE_DESIGN_NAME = "nixie";
 const NIXIE_INTER_CHAR_SPACE = 0;
 const NIXIE_BORDER_TO_CHAR_SPACE = 12;
-const NIXIE_ASSUMED_SCREEN_HEIGHT = 1500;
+const NIXIE_ASSUMED_SCREEN_HEIGHT = 1800;
 
 const directionToXY = [
     [  0, -1 ], // north
@@ -112,6 +112,18 @@ class ClockDesign {
     supportsClockBackground() {
         return false;
     }
+
+    supportsTextOutline() {
+        return true;
+    }
+
+    supportsTextColour() {
+        return true;
+    }
+
+    supportsTextShadow() {
+        return true;
+    }
 }
 
 class CanvasClockDesign extends ClockDesign {
@@ -141,7 +153,7 @@ class CanvasClockDesign extends ClockDesign {
      *     character images. If drawClock is called with scaleX and scaleY
      *     both equal to 1, a character image will take up
      *     (<IMAGE HEIGHT IN PIXELS> / fontScreenHeight) of the vertical space
-     *     in the canvas. For the "micro" design, the character height is 41
+     *     in the canvas. For the "octagon" design, the character height is 41
      *     and fontScreenHeight is 576.
      *
      * transparentImages: true if the background of the images is transparent
@@ -443,13 +455,25 @@ class CanvasClockDesign extends ClockDesign {
         this.canvas.height = this.canvasContainer.clientHeight;
         this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
+    supportsTextColour() {
+        return this.transparentImages;
+    }
+
+    supportsTextOutline() {
+        return this.transparentImages;
+    }
+
+    supportsTextShadow() {
+        return this.transparentImages;
+    }
 }
 
-class MicroCanvasClockDesign extends CanvasClockDesign {
+class OctagonCanvasClockDesign extends CanvasClockDesign {
     constructor(canvas, canvasContainer, finishedCallback) {
-        super(canvas, canvasContainer, characterDesignUrls[MICRO_DESIGN_NAME],
-            MICRO_INTER_CHAR_SPACE, MICRO_BORDER_TO_CHAR_SPACE,
-            MICRO_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
+        super(canvas, canvasContainer, characterDesignUrls[OCTAGON_DESIGN_NAME],
+            OCTAGON_INTER_CHAR_SPACE, OCTAGON_BORDER_TO_CHAR_SPACE,
+            OCTAGON_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
     }
 }
 
