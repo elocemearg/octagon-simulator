@@ -550,10 +550,10 @@ class CanvasClockDesign extends ClockDesign {
                 let scale = this.calculateModifiedScaleFactor();
                 context.setTransform(scale, 0, 0, scale, 0, 0);
                 context.clearRect(
-                    this.canvasDirtyRegion.getLeft(),
-                    this.canvasDirtyRegion.getTop(),
-                    this.canvasDirtyRegion.getWidth(),
-                    this.canvasDirtyRegion.getHeight()
+                    Math.max(0, this.canvasDirtyRegion.getLeft() - 1),
+                    Math.max(0, this.canvasDirtyRegion.getTop() - 1),
+                    this.canvasDirtyRegion.getWidth() + 1,
+                    this.canvasDirtyRegion.getHeight() + 1
                 );
                 context.setTransform(1, 0, 0, 1, 0, 0);
             }
