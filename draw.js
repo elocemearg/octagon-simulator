@@ -147,11 +147,11 @@ class CanvasDirtyRegion {
     }
 
     getWidth() {
-        return this.x2 - this.x1;
+        return 1 + this.x2 - this.x1;
     }
 
     getHeight() {
-        return this.y2 - this.y1;
+        return 1 + this.y2 - this.y1;
     }
 
     isClean() {
@@ -539,8 +539,8 @@ class CanvasClockDesign extends ClockDesign {
 
     /* Resize the canvas to the width and height of its container, and clear
      * the canvas. */
-    clearClock() {
-        if (!this.styleChanged &&
+    clearClock(forceFullClean=false) {
+        if (!this.styleChanged && !forceFullClean &&
                 this.canvas.width == this.canvasContainer.clientWidth &&
                 this.canvas.height == this.canvasContainer.clientHeight) {
             /* Optimised clear - clear only the bounding rectangle around

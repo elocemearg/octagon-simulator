@@ -724,7 +724,7 @@ function clockDesignChanged() {
     enableSaveButton();
     refreshOptions();
 
-    activeClockDesign.clearClock();
+    activeClockDesign.clearClock(true);
     activeClockDesign = clockDesigns[optionsValues["clockdesign"]];
     if (activeClockDesign == null) {
         activeClockDesign = clockDesigns["boring"];
@@ -798,7 +798,7 @@ function refreshClock() {
         activeClockDesign.drawClock(timeString);
     }
     else {
-        activeClockDesign.clearClock();
+        activeClockDesign.clearClock(true);
     }
 
     /* If a backwards-counting clock has reached zero, stop */
