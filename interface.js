@@ -895,6 +895,21 @@ function positionChanged() {
     refreshClock();
 }
 
+function switchToPreset(presetName) {
+    let presetOptionsValues = getPresetOptionValues(presetName);
+    if (presetOptionsValues) {
+        for (let name in presetOptionsValues) {
+            if (name in optionsDesc) {
+                optionsValues[name] = presetOptionsValues[name];
+                setControlFromOptionValue(optionsValues, optionsDesc, name);
+            }
+        }
+    }
+    enableSaveButton();
+    refreshConfiguration();
+    refreshClock();
+}
+
 function enableReset() {
     let resetButton = document.getElementById("reset");
     resetButton.disabled = false;
@@ -903,6 +918,13 @@ function enableReset() {
 function disableReset() {
     let resetButton = document.getElementById("reset");
     resetButton.disabled = true;
+}
+
+function setPresetButtonsEnabled(enabled) {
+    let buttons = document.getElementsByClassName("presetbutton");
+    for (let i = 0; i < buttons.length; ++i) {
+        buttons[i].disabled = !enabled;
+    }
 }
 
 function stopClock() {
@@ -916,6 +938,7 @@ function stopClock() {
     startButton.style.backgroundColor = "#ddffdd";
     refreshClock();
     console.log("stopped on " + clock.getValueMs().toString() + "ms");
+    setPresetButtonsEnabled(true);
     enableReset();
 }
 
@@ -930,6 +953,7 @@ function startStop() {
             startButton.style.backgroundColor = "#ffdddd";
             clock.start();
             setNextSecondTimeout();
+            setPresetButtonsEnabled(false);
             console.log("started on " + clock.getValueMs().toString() + "ms");
         }
         enableReset();
@@ -1070,6 +1094,57 @@ function initialisePost() {
     }
 }
 
+function loadPresetButtons() {
+    let presetsPanel = document.getElementById("presetspanel");
+    let sections = clockPresetBanner["sections"];
+
+    buildPresetNameMap();
+    while (presetsPanel.firstChild) {
+        presetsPanel.removeChild(presetsPanel.firstChild);
+    }
+    for (let secIndex = 0; secIndex < sections.length; ++secIndex) {
+        let section = sections[secIndex];
+        let sectionName = section["name"];
+        let presets = section["presets"];
+        let sectionDiv = document.createElement("div");
+        let sectionHeaderDiv = document.createElement("div");
+
+        sectionDiv.classList.add("presetdesignsection");
+        sectionHeaderDiv.classList.add("presetdesignheader");
+        sectionHeaderDiv.innerText = sectionName;
+        sectionDiv.appendChild(sectionHeaderDiv);
+
+        for (let presetIndex = 0; presetIndex < presets.length; ++presetIndex) {
+            let presetInfo = presets[presetIndex];
+            let presetBoxDiv = document.createElement("div");
+            let presetImageDiv = document.createElement("div");
+            let presetDescDiv = document.createElement("div");
+            let presetButton = document.createElement("button");
+            let presetImage = document.createElement("img");
+            presetBoxDiv.classList.add("presetbox");
+            presetImageDiv.classList.add("presetimage");
+            presetDescDiv.classList.add("presetdesc");
+
+            sectionDiv.appendChild(presetBoxDiv);
+            presetBoxDiv.appendChild(presetImageDiv);
+            presetBoxDiv.appendChild(presetDescDiv);
+
+            presetImageDiv.appendChild(presetButton);
+            presetButton.classList.add("presetbutton");
+            presetButton.appendChild(presetImage);
+            presetImage.src = presetInfo["imageurl"];
+            presetImage.alt = presetInfo["desc"];
+            presetDescDiv.innerText = presetInfo["desc"];
+
+            let presetName = presetInfo["name"];
+            presetButton.addEventListener("click", function() {
+                switchToPreset(presetName);
+            });
+        }
+        presetsPanel.appendChild(sectionDiv);
+    }
+}
+
 let numCanvasClocks = 0;
 function canvasClockLoaded() {
     numCanvasClocks--;
@@ -1105,6 +1180,8 @@ function initialise() {
     counterInstructions = document.getElementById("counterinstructions");
     presetsPanelContainer = document.getElementById("presetspanelcontainer");
     togglePresetsLink = document.getElementById("togglepresetslink");
+
+    loadPresetButtons();
 }
 
 /* Save the settings currently in optionsValues to the cookie. */

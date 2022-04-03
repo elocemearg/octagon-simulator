@@ -4,15 +4,19 @@
         <title>Octagon Simulator</title>
         <meta charset="UTF-8">
         <meta name="author" content="Graeme Cole">
-        <meta name="description" content="Old TV countdown clock mockup">
+        <meta name="description" content="On-screen countdown clock mockup">
         <link rel="stylesheet" type="text/css" href="interface.css" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="icons/octagonfavicon128.png" sizes="128x128">
+        <link rel="icon" type="image/png" href="icons/octagonfavicon64.png" sizes="64x64">
+        <link rel="icon" type="image/x-icon" href="icons/octagonfavicon32.ico">
     </head>
     <body onload="initialise();">
         <script src="font.js?bump=1"></script>
         <script src="draw.js?bump=1"></script>
         <script src="htmldraw.js?bump=1"></script>
         <script src="clock.js?bump=2"></script>
+        <script src="presets.js?bump=1"></script>
         <script src="interface.js?bump=2"></script>
 
         <div id="screen">
@@ -27,77 +31,7 @@
                     <a onclick="togglePresetsHeader();" id="togglepresetslink" class="expandlink">Hide presets</a>
                 </div>
                 <div class="presetspanelcontainer" id="presetspanelcontainer">
-                    <div class="presetspanel" id="presetspanel">
-                        <div class="presetdesignsection">
-                            <div class="presetdesignheader">Octagonal</div>
-                            <div class="presetbox">
-                                <div class="presetimage">
-                                    <a href="?countermode=0&displayclock=true&clockdesign=octagon&startminutes=0&startseconds=0&countup=true&leadingzero=false&showtenths=false&showborder=true&format=3&bgcolor=%2300b140&fgcolor=%23ffffff&outlinecolor=%23000000&outlinesize=1&scalefactor=100&shadowdir=3&shadowlength=3&xposanchor=right&yposanchor=bottom&xpospc=85&ypospc=85&bgdisable=false&menu=true&start=false">
-                                        <img src="presetimages/octagonstopwatch.jpg" alt="Octagon clock counting up">
-                                    </a>
-                                </div>
-                                <div class="presetdesc">
-                                    From zero
-                                </div>
-                            </div>
-                            <div class="presetbox">
-                                <div class="presetimage">
-                                    <a href="?countermode=0&displayclock=true&clockdesign=octagon&startminutes=3&startseconds=0&countup=false&leadingzero=false&showtenths=false&showborder=true&format=3&bgcolor=%2300b140&fgcolor=%23ffffff&outlinecolor=%23000000&outlinesize=1&scalefactor=100&shadowdir=3&shadowlength=3&xposanchor=right&yposanchor=bottom&xpospc=85&ypospc=85&bgdisable=false&menu=true&start=false">
-                                        <img src="presetimages/octagoncountdown.jpg" alt="Octagon 3-minute countdown">
-                                    </a>
-                                </div>
-                                <div class="presetdesc">
-                                    To zero
-                                </div>
-                            </div>
-                        </div>
-                        <div class="presetdesignsection">
-                            <div class="presetdesignheader">Nixie tubes</div>
-                            <div class="presetbox">
-                                <div class="presetimage">
-                                    <a href="?countermode=0&displayclock=true&clockdesign=nixie&startminutes=0&startseconds=0&countup=true&leadingzero=false&showtenths=true&showborder=true&format=3&bgcolor=%2300b140&scalefactor=100&xposanchor=right&yposanchor=bottom&xpospc=85&ypospc=85&bgdisable=false&menu=true&start=false">
-                                        <img src="presetimages/nixiestopwatch.jpg" alt="Nixie tube stopwatch">
-                                    </a>
-                                </div>
-                                <div class="presetdesc">
-                                    From zero
-                                </div>
-                            </div>
-                            <div class="presetbox">
-                                <div class="presetimage">
-                                    <a href="?countermode=0&displayclock=true&clockdesign=nixie&startminutes=3&startseconds=0&countup=false&leadingzero=false&showtenths=false&showborder=true&format=3&bgcolor=%2300b140&scalefactor=100&xposanchor=right&yposanchor=bottom&xpospc=85&ypospc=85&bgdisable=false&menu=true&start=false">
-                                        <img src="presetimages/nixiecountdown.jpg" alt="Nixie tube 3-minute countdown">
-                                    </a>
-                                </div>
-                                <div class="presetdesc">
-                                    To zero
-                                </div>
-                            </div>
-                        </div>
-                        <div class="presetdesignsection">
-                            <div class="presetdesignheader">Boring</div>
-                            <div class="presetbox">
-                                <div class="presetimage">
-                                    <a href="?countermode=0&displayclock=true&clockdesign=htmlbox&startminutes=0&startseconds=0&countup=true&leadingzero=false&showtenths=true&showborder=true&format=3&bgcolor=%2300b140&fgcolor=%23ffffff&clockbgcolor=%23000000&clockbgalpha=70&outlinecolor=%23000000&outlinesize=1&scalefactor=100&shadowdir=3&shadowlength=2&xposanchor=right&yposanchor=bottom&xpospc=85&ypospc=85&bgdisable=false&menu=true&start=false">
-                                        <img src="presetimages/modernstopwatch.jpg" alt="Modern stopwatch">
-                                    </a>
-                                </div>
-                                <div class="presetdesc">
-                                    From zero
-                                </div>
-                            </div>
-                            <div class="presetbox">
-                                <div class="presetimage">
-                                    <a href="?countermode=0&displayclock=true&clockdesign=htmlbox&startminutes=3&startseconds=0&countup=false&leadingzero=false&showtenths=false&showborder=true&format=3&bgcolor=%2300b140&fgcolor=%23ffffff&clockbgcolor=%23000000&clockbgalpha=70&outlinecolor=%23000000&outlinesize=1&scalefactor=100&shadowdir=3&shadowlength=2&xposanchor=right&yposanchor=bottom&xpospc=85&ypospc=85&bgdisable=false&menu=true&start=false">
-                                        <img src="presetimages/moderncountdown.jpg" alt="Modern 3-minute countdown">
-                                    </a>
-                                </div>
-                                <div class="presetdesc">
-                                    To zero
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="presetspanel" id="presetspanel"></div>
                 </div>
             </div>
             <div class="menuinstructions">
@@ -137,8 +71,7 @@
                 <div class="sectionbody">
                     <div class="menurow" style="margin-bottom: 10px;">
                         <input type="radio" id="clockmode" name="countermode" value="0" onclick="changeMode();" checked /><label for="clockmode">Clock</label>
-                        <br />
-                        <input type="radio" id="countermode" name="countermode" value="1" onclick="changeMode();" /><label for="countermode">Counter</label>
+                        <input type="radio" id="countermode" name="countermode" value="1" onclick="changeMode();" style="margin-left: 20px;" /><label for="countermode">Counter</label>
                     </div>
                 </div>
             </div>
@@ -147,12 +80,6 @@
                 <div class="sectiontitle clockmodecontrols">Start time</div>
                 <div class="sectiontitle countermodecontrols">Counter</div>
                 <div class="sectionbody">
-                    <!-- <div class="menurow">
-                        <button class="clockpresetbutton" onclick="setInitialTime(0);">0s</button>
-                        <button class="clockpresetbutton" onclick="setInitialTime(10);">10s</button>
-                        <button class="clockpresetbutton" onclick="setInitialTime(30);">30s</button>
-                        <button class="clockpresetbutton" onclick="setInitialTime(60);">1m</button>
-                    </div> -->
                     <div class="clockmodecontrols">
                         <div class="menurow">
                             <input type="number" id="minutes" min="0" value="0" oninput="startTimeChanged();" /> min
@@ -378,7 +305,7 @@
                 screenshots of old shows, probably not quite accurately.
                 </p>
                 <p>
-                It has since grown some other clock designs.
+                It has since grown some additional features and clock designs.
                 </p>
                 <p>
                 <a href="https://github.com/elocemearg/octagon-simulator" target="_blank">Source code on GitHub</a>

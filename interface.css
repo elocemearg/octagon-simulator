@@ -19,6 +19,7 @@ body {
     border-radius: 10px;
     max-width: 400px;
     z-index: 1;
+    box-shadow: 2px 2px 10px black;
 }
 
 #canvas {
@@ -27,7 +28,7 @@ body {
 
 #presetspanelcontainer {
     position: relative;
-    height: 120px;
+    height: 140px;
 }
 
 div.presetsheader {
@@ -48,7 +49,7 @@ div.presetspanel {
     border-radius: 10px;
     z-index: 1;
     vertical-align: top;
-    box-shadow: 3px 3px 10px black;
+    box-shadow: 2px 2px 10px black;
 }
 
 div.presetdesignsection {
@@ -74,15 +75,30 @@ div.presetbox {
 
 div.presetimage {
     display: inline-block;
-    height: 50px;
+}
+
+button.presetbutton {
+    width: 120px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+div.presetimage img {
+    vertical-align: middle;
+}
+
+button.presetbutton[disabled],
+button.presetbutton:disabled img {
+    opacity: 60%;
 }
 
 div.presetdesc {
     position: relative;
-    max-width: 100px;
     height: 20px;
+    margin-top: 3px;
     font-size: 12px;
     white-space: normal;
+    text-align: center;
 }
 
 #menu input[type="number"] {

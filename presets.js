@@ -1,0 +1,258 @@
+
+const presetOctagonStopwatch = {
+    "name" : "octagonstopwatch",
+    "imageurl" : "presetimages/octagonstopwatch.jpg",
+    "desc" : "Up from zero",
+    "options" : {
+        "countermode":"0",
+        "displayclock":true,
+        "clockdesign":"octagon",
+        "startminutes":0,
+        "startseconds":0,
+        "countup":true,
+        "leadingzero":false,
+        "showtenths":false,
+        "showborder":true,
+        "format":"3",
+        "bgcolor":[0,177,64],
+        "fgcolor":[255,255,255],
+        "outlinecolor":[0,0,0],
+        "outlinesize":1,
+        "scalefactor":100,
+        "shadowdir":"3",
+        "shadowlength":3,
+        "xposanchor":"right",
+        "yposanchor":"bottom",
+        "xpospc":85,
+        "ypospc":85,
+        "bgdisable":false,
+        "showpresets":true
+    }
+};
+
+const presetOctagonCountdown30 = {
+    "name" : "octagoncountdown30",
+    "imageurl" : "presetimages/octagoncountdown30.jpg",
+    "desc" : "30 → 0",
+    "options" : {
+        "countermode": "0",
+        "displayclock": true,
+        "clockdesign": "octagon",
+        "startminutes": 0,
+        "startseconds": 30,
+        "countup": false,
+        "leadingzero": false,
+        "showtenths": false,
+        "showborder": true,
+        "format": "-1",
+        "bgcolor": [ 0, 177, 64 ],
+        "fgcolor": [ 255, 255, 255 ],
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 1,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 3,
+        "xposanchor": "right",
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
+        "bgdisable": false,
+        "showpresets": true
+    }
+};
+
+const presetOctagonCountdown3m = {
+    "name" : "octagoncountdown3m",
+    "imageurl" : "presetimages/octagoncountdown3m.jpg",
+    "desc" : "3:00 → 0:00",
+    "options" : {
+        "countermode": "0",
+        "displayclock": true,
+        "clockdesign": "octagon",
+        "startminutes": 3,
+        "startseconds": 0,
+        "countup": false,
+        "leadingzero": false,
+        "showtenths": false,
+        "showborder": true,
+        "format": "-1",
+        "bgcolor": [ 0, 177, 64 ],
+        "fgcolor": [ 255, 255, 255 ],
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 1,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 3,
+        "xposanchor": "right",
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
+        "bgdisable": false,
+        "showpresets": true
+    }
+};
+
+const presetNixieStopwatch = {
+    "name" : "nixiestopwatch",
+    "imageurl" : "presetimages/nixiestopwatch.jpg",
+    "desc" : "Up from zero",
+    "options" : {
+        "countermode": "0",
+        "displayclock": true,
+        "clockdesign": "nixie",
+        "startminutes": 0,
+        "startseconds": 0,
+        "countup": true,
+        "leadingzero": false,
+        "showtenths": true,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "scalefactor": 100,
+        "xposanchor": "right",
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
+        "bgdisable": false,
+        "showpresets": true
+    }
+};
+
+const presetNixieCountdown = {
+    "name" : "nixiecountdown",
+    "imageurl" : "presetimages/nixiecountdown.jpg",
+    "desc" : "3:00 → 0:00",
+    "options" : {
+        "countermode": "0",
+        "displayclock": true,
+        "clockdesign": "nixie",
+        "startminutes": 3,
+        "startseconds": 0,
+        "countup": false,
+        "leadingzero": false,
+        "showtenths": false,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "scalefactor": 100,
+        "xposanchor": "right",
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
+        "bgdisable": false,
+        "showpresets": true
+    }
+};
+
+const presetBoringStopwatch = {
+    "name" : "boringstopwatch",
+    "imageurl" : "presetimages/boringstopwatch.jpg",
+    "desc" : "Up from zero",
+    "options" : {
+        "countermode": "0",
+        "displayclock": true,
+        "clockdesign": "htmlbox",
+        "startminutes": 0,
+        "startseconds": 0,
+        "countup": true,
+        "leadingzero": false,
+        "showtenths": true,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "fgcolor": [ 255, 255, 255 ],
+        "clockbgcolor": [ 0, 0, 0 ],
+        "clockbgalpha": 70,
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 0,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 2,
+        "xposanchor": "right",
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
+        "bgdisable": false,
+        "showpresets": true
+    }
+};
+
+const presetBoringCountdown = {
+    "name" : "boringcountdown",
+    "imageurl" : "presetimages/boringcountdown.jpg",
+    "desc" : "3:00 → 0:00",
+    "options" : {
+        "countermode": "0",
+        "displayclock": true,
+        "clockdesign": "htmlbox",
+        "startminutes": 3,
+        "startseconds": 0,
+        "countup": false,
+        "leadingzero": false,
+        "showtenths": false,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "fgcolor": [ 255, 255, 255 ],
+        "clockbgcolor": [ 0, 0, 0 ],
+        "clockbgalpha": 70,
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 0,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 2,
+        "xposanchor": "right",
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
+        "bgdisable": false,
+        "showpresets": true
+    }
+};
+
+const clockPresetBanner = {
+    "sections": [
+        {
+            "name" : "Octagonal",
+            "presets" : [
+				presetOctagonStopwatch,
+				presetOctagonCountdown30,
+				presetOctagonCountdown3m,
+            ]
+        },
+        {
+            "name" : "Nixie",
+            "presets" : [
+                presetNixieStopwatch,
+                presetNixieCountdown
+            ]
+        },
+        {
+            "name" : "Boring",
+            "presets" : [
+                presetBoringStopwatch,
+                presetBoringCountdown
+            ]
+        }
+    ]
+};
+
+let clockPresetNames = {};
+function buildPresetNameMap() {
+    clockPresetNames = {};
+    for (let i = 0; i < clockPresetBanner["sections"].length; ++i) {
+        let sec = clockPresetBanner["sections"][i];
+        for (let j = 0; j < sec["presets"].length; ++j) {
+            clockPresetNames[sec["presets"][j]["name"]] = sec["presets"][j];
+        }
+    }
+}
+
+function getPresetOptionValues(name) {
+    if (name in clockPresetNames) {
+        return clockPresetNames[name]["options"];
+    }
+    else {
+        return {};
+    }
+}

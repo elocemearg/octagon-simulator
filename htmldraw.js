@@ -28,7 +28,6 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.div.style.position = "absolute";
         this.div.style.fontFamily = [ "Inter", "sans-serif" ];
         this.div.style.fontVariantNumeric = "tabular-nums";
-        this.div.style.fontWeight = "bold";
         this.div.style.display = "none"; // don't display anything yet
         this.container.appendChild(this.div);
 
