@@ -126,6 +126,62 @@ class ClockDesign {
     }
 }
 
+/* A bounding box on a canvas which we define as "dirty". Helps us to remember
+ * which part of the canvas we need to clear, to avoid having to clear all of
+ * it. */
+class CanvasDirtyRegion {
+    constructor() {
+        this.x1 = 0;
+        this.y1 = 0;
+        this.x2 = 0;
+        this.y2 = 0;
+        this.clean = true;
+    }
+
+    getLeft() {
+        return this.x1;
+    }
+
+    getTop() {
+        return this.y1;
+    }
+
+    getWidth() {
+        return this.x2 - this.x1;
+    }
+
+    getHeight() {
+        return this.y2 - this.y1;
+    }
+
+    isClean() {
+        return this.clean;
+    }
+
+    /* Mark the rectangle bounded by the top-left corner (x1, y1) and the
+     * bottom-right corner (x2, y2) as dirty, and expand the dirty region
+     * accordingly. */
+    setDirtyRegion(x1, y1, x2, y2) {
+        if (this.isClean()) {
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+            this.clean = false;
+        }
+        else {
+            this.x1 = Math.min(this.x1, x1);
+            this.y1 = Math.min(this.y1, y1);
+            this.x2 = Math.max(this.x2, x2);
+            this.y2 = Math.max(this.y2, y2);
+        }
+    }
+
+    setClean() {
+        this.clean = true;
+    }
+}
+
 class CanvasClockDesign extends ClockDesign {
     /* Construct a ClockDesign which paints the clock image onto a canvas
      * which is contained within canvasContainer. Although the constructor
@@ -178,6 +234,8 @@ class CanvasClockDesign extends ClockDesign {
         this.canvasContainer = canvasContainer;
         this.fontScreenHeight = fontScreenHeight;
         this.transparentImages = transparentImages;
+        this.canvasDirtyRegion = new CanvasDirtyRegion();
+        this.clockBrushCanvas = document.createElement("canvas");
 
         for (let i = 0; i < characterUrls.length; ++i) {
             this.characterImages.push(null);
@@ -209,26 +267,13 @@ class CanvasClockDesign extends ClockDesign {
         return this.characterCanvases[code].height;
     }
 
-    drawCharacter(destImage, code, destX, destY, xLimit=null) {
-        let imageData;
-
+    drawCharacter(destCanvasContext, code, destX, destY, xLimit=null) {
         if (xLimit == null) {
             xLimit = this.characterCanvases[code].width;
         }
-
-        let srcImage = this.characterCanvases[code].getContext("2d").getImageData(
-                0, 0, Math.min(this.characterCanvases[code].width, xLimit),
-                this.characterCanvases[code].height);
-
-        for (let y = 0; y < srcImage.height; ++y) {
-            for (let x = 0; x < srcImage.width; ++x) {
-                let dataDest = 4 * ((destY + y) * destImage.width + destX + x);
-                let dataSrc = 4 * (y * srcImage.width + x);
-                for (let i = 0; i < 4; ++i) {
-                    destImage.data[dataDest + i] = srcImage.data[dataSrc + i];
-                }
-            }
-        }
+        destCanvasContext.drawImage(this.characterCanvases[code], destX, destY,
+            Math.min(this.characterCanvases[code].width, xLimit),
+            this.characterCanvases[code].height);
     }
 
     static charToIndex(ch) {
@@ -251,7 +296,17 @@ class CanvasClockDesign extends ClockDesign {
         return code;
     }
 
-    makeClockImage(string, border=true) {
+    /*
+     * Return a canvas showing the clock text described by "string" without any
+     * outline or shadow applied to it. If the character images have
+     * transparency (this.transparentImages true), this canvas may be used as
+     * a "brush" to draw the outline and shadow in different colours before
+     * drawing the clock text.
+     *
+     * If existingCanvas is null, we create a new canvas and return it.
+     * Otherwise we clear and reuse the existing canvas.
+     */
+    makeClockCanvas(string, existingCanvas, border=true) {
         let xstart = 0;
         let ystart = 0;
         let xpos = xstart;
@@ -279,11 +334,25 @@ class CanvasClockDesign extends ClockDesign {
         }
         width += this.getCharacterWidth(RIGHT_BORDER);
 
-        let imageData = new ImageData(width, height);
-
+        let clockCanvas;
+        let clockCanvasContext;
+        if (existingCanvas) {
+            clockCanvas = existingCanvas;
+            clockCanvas.width = width;
+            clockCanvas.height = height;
+            clockCanvasContext = clockCanvas.getContext("2d");
+            clockCanvasContext.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
+        }
+        else {
+            clockCanvas = document.createElement("canvas");
+            clockCanvas.width = width;
+            clockCanvas.height = height;
+            clockCanvasContext = clockCanvas.getContext("2d");
+        }
+        
         if (border) {
             /* Draw left border */
-            this.drawCharacter(imageData, LEFT_BORDER, xpos, ystart);
+            this.drawCharacter(clockCanvasContext, LEFT_BORDER, xpos, ystart);
         }
 
         xpos += this.getCharacterWidth(LEFT_BORDER);
@@ -300,18 +369,18 @@ class CanvasClockDesign extends ClockDesign {
                     /* Leave some space after the last character, and draw the
                      * top and bottom border above and below this space */
                     if (border && this.interCharSpace > 0) {
-                        this.drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, this.interCharSpace);
+                        this.drawCharacter(clockCanvasContext, NUMBER_BORDER, xpos, ystart, this.interCharSpace);
                     }
                     xpos += this.interCharSpace;
                 }
 
                 if (border) {
                     /* Draw the top and bottom border over this character */
-                    this.drawCharacter(imageData, NUMBER_BORDER, xpos, ystart, charWidth);
+                    this.drawCharacter(clockCanvasContext, NUMBER_BORDER, xpos, ystart, charWidth);
                 }
 
                 /* Draw the character, a set distance below the top border */
-                this.drawCharacter(imageData, charIndex, xpos, ystart + this.borderToCharVerticalSpace);
+                this.drawCharacter(clockCanvasContext, charIndex, xpos, ystart + this.borderToCharVerticalSpace);
 
                 /* Advance xpos by the width of this character */
                 xpos += charWidth;
@@ -322,10 +391,10 @@ class CanvasClockDesign extends ClockDesign {
 
         if (border) {
             /* Draw right border */
-            this.drawCharacter(imageData, RIGHT_BORDER, xpos, ystart);
+            this.drawCharacter(clockCanvasContext, RIGHT_BORDER, xpos, ystart);
         }
 
-        return imageData;
+        return clockCanvas;
     }
 
     static changeNonTransparentPixelColour(imageData, newColour) {
@@ -340,6 +409,13 @@ class CanvasClockDesign extends ClockDesign {
                 dataPos += 4;
             }
         }
+    }
+
+    /* Scale factor by which we scale the canvas we paint, which takes into
+     * account the user setting and the font's assumed screen height relative
+     * to the actual canvas height. */
+    calculateModifiedScaleFactor() {
+        return this.scaleFactor * this.canvas.height / this.fontScreenHeight;
     }
 
     /* Resize the canvas to the width and height of its container, clear the
@@ -368,70 +444,79 @@ class CanvasClockDesign extends ClockDesign {
 
         /* Scale the characters by the ratio of the actual canvas height and
          * the screen height assumed by the PNG files */
-        let scaleY = this.scaleFactor * destCanvas.height / this.fontScreenHeight;
-        let scaleX = this.scaleFactor * destCanvas.height / this.fontScreenHeight;
+        let scaleY = this.calculateModifiedScaleFactor();
+        let scaleX = scaleY;
 
         let destContext = destCanvas.getContext("2d");
 
-        /* Get our basic clock image based on this string */
-        let clockImage = this.makeClockImage(string, this.showBorder);
-
-        /* Clock canvas: just the image of the numbers with no outline, padding
-         * or shadow. */
-        let clockCanvas = document.createElement("canvas");
-
-        /* Outline canvas: we'll use the clock image and stamp it onto the
-         * outline canvas several times to make an outline of the clock
-         * digits. */
-        let outlineCanvas = document.createElement("canvas");
+        /* Get our basic clock canvas based on this string. We'll use this as
+         * our "brush", and we'll paint the outline, shadow and text using
+         * this brush in the required colours. */
+        let clockBrushCanvas = this.makeClockCanvas(string, this.clockBrushCanvas, this.showBorder);
+        let clockBrushContext = clockBrushCanvas.getContext("2d");
+        this.clockBrushCanvas = clockBrushCanvas;
 
         /* Finished canvas: the finished clock image with outline and shadow. */
         let finishedCanvas = document.createElement("canvas");
-
-        /* Padding: make our intermediate canvases the size of the clock image,
-         * plus the expected outline and shadow */
-        let padding = this.shadowLength + this.outlineSize;
-
-        clockCanvas.width = clockImage.width;
-        clockCanvas.height = clockImage.height;
-        outlineCanvas.width = (clockImage.width + 2 * padding);
-        outlineCanvas.height = (clockImage.height + 2 * padding);
-        finishedCanvas.width = outlineCanvas.width;
-        finishedCanvas.height = outlineCanvas.height;
-
-        let clockContext = clockCanvas.getContext("2d");
-        let outlineContext = outlineCanvas.getContext("2d");
         let finishedContext = finishedCanvas.getContext("2d");
 
-        if (this.transparentImages && this.outlineColour != null) {
-            /* Draw the outline, in outlineColour */
-            CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.outlineColour);
-            clockContext.putImageData(clockImage, 0, 0);
-            for (let dy = -this.outlineSize; dy <= this.outlineSize; ++dy) {
-                for (let dx = -this.outlineSize; dx <= this.outlineSize; ++dx) {
-                    outlineContext.drawImage(clockCanvas, padding + dx, padding + dy);
+        /* Amount of padding on the left and top between the edge of
+         * finishedCanvas and the top-left corner of the final clock text.
+         * We set this to something positive if ther's any outline or shadow. */
+        let padding = 0;
+
+        /* finishedCanvas's dimensions are the same as the clock image for now.
+         * If we add outline or shadow below, we'll make it larger then. */
+        finishedCanvas.width = clockBrushCanvas.width;
+        finishedCanvas.height = clockBrushCanvas.height;
+
+        if (this.transparentImages) {
+            /* Outline canvas: we'll use the clock image and stamp it onto the
+             * outline canvas several times to make an outline of the clock
+             * digits. */
+            let outlineCanvas = document.createElement("canvas");
+            let outlineContext = outlineCanvas.getContext("2d");
+            let clockBrushImage = clockBrushContext.getImageData(0, 0, clockBrushCanvas.width, clockBrushCanvas.height);
+
+            /* Padding: make our intermediate canvases the size of the clock
+             * image, plus the expected outline and shadow */
+            padding = this.shadowLength + this.outlineSize;
+            outlineCanvas.width = (clockBrushImage.width + 2 * padding);
+            outlineCanvas.height = (clockBrushImage.height + 2 * padding);
+            finishedCanvas.width = outlineCanvas.width;
+            finishedCanvas.height = outlineCanvas.height;
+
+            if (this.outlineColour != null) {
+                /* Draw the outline, in outlineColour */
+                CanvasClockDesign.changeNonTransparentPixelColour(clockBrushImage, this.outlineColour);
+                clockBrushContext.putImageData(clockBrushImage, 0, 0);
+                for (let dy = -this.outlineSize; dy <= this.outlineSize; ++dy) {
+                    for (let dx = -this.outlineSize; dx <= this.outlineSize; ++dx) {
+                        outlineContext.drawImage(clockBrushCanvas, padding + dx, padding + dy);
+                    }
+                }
+
+                /* Put the outline on the finished context */
+                finishedContext.drawImage(outlineCanvas, 0, 0);
+
+                /* Draw the shadow by smearing the outline in a particular
+                 * direction */
+                for (let dist = 1; dist <= this.shadowLength; ++dist) {
+                    finishedContext.drawImage(outlineCanvas,
+                            directionToXY[this.shadowDirection][0] * dist,
+                            directionToXY[this.shadowDirection][1] * dist);
                 }
             }
 
-            /* Put the outline on the finished context */
-            finishedContext.drawImage(outlineCanvas, 0, 0);
-
-            /* Draw the shadow by smearing the outline in a particular
-             * direction */
-            for (let dist = 1; dist <= this.shadowLength; ++dist) {
-                finishedContext.drawImage(outlineCanvas,
-                        directionToXY[this.shadowDirection][0] * dist,
-                        directionToXY[this.shadowDirection][1] * dist);
-            }
+            /* Finally, draw the actual numbers on top of the outline, using the
+             * main colour. */
+            CanvasClockDesign.changeNonTransparentPixelColour(clockBrushImage, this.textColour);
+            clockBrushContext.putImageData(clockBrushImage, 0, 0);
+            finishedContext.drawImage(clockBrushCanvas, padding, padding);
         }
-
-        /* Finally, draw the actual numbers on top of the outline, using the
-         * main colour. */
-        if (this.transparentImages) {
-            CanvasClockDesign.changeNonTransparentPixelColour(clockImage, this.textColour);
+        else {
+            finishedContext.drawImage(clockBrushCanvas, padding, padding);
         }
-        clockContext.putImageData(clockImage, 0, 0);
-        finishedContext.drawImage(clockCanvas, padding, padding);
 
         if (this.yPosBottomEdge) {
             ystart -= finishedCanvas.height * scaleY;
@@ -442,18 +527,46 @@ class CanvasClockDesign extends ClockDesign {
 
         /* Now take our finished image and draw it onto the destination canvas
          * at the desired position. */
+        let x = Math.floor(xstart / scaleX);
+        let y = Math.floor(ystart / scaleY);
         destContext.setTransform(scaleX, 0, 0, scaleY, 0, 0);
-        destContext.drawImage(finishedCanvas, Math.floor(xstart / scaleX),
-                Math.floor(ystart / scaleY));
+        destContext.drawImage(finishedCanvas, x, y);
         destContext.setTransform(1, 0, 0, 1, 0, 0);
+        this.canvasDirtyRegion.setDirtyRegion(x, y, x + finishedCanvas.width, y + finishedCanvas.height);
+
+        this.styleChanged = false;
     }
 
     /* Resize the canvas to the width and height of its container, and clear
      * the canvas. */
     clearClock() {
-        this.canvas.width = this.canvasContainer.clientWidth;
-        this.canvas.height = this.canvasContainer.clientHeight;
-        this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (!this.styleChanged &&
+                this.canvas.width == this.canvasContainer.clientWidth &&
+                this.canvas.height == this.canvasContainer.clientHeight) {
+            /* Optimised clear - clear only the bounding rectangle around
+             * what's already been painted on. */
+            if (!this.canvasDirtyRegion.isClean()) {
+                let context = this.canvas.getContext("2d");
+                let scale = this.calculateModifiedScaleFactor();
+                context.setTransform(scale, 0, 0, scale, 0, 0);
+                context.clearRect(
+                    this.canvasDirtyRegion.getLeft(),
+                    this.canvasDirtyRegion.getTop(),
+                    this.canvasDirtyRegion.getWidth(),
+                    this.canvasDirtyRegion.getHeight()
+                );
+                context.setTransform(1, 0, 0, 1, 0, 0);
+            }
+        }
+        else {
+            /* If any style options have changed, or the canvas size has
+             * changed since we last set it to the dimensions of its
+             * container, clear the whole canvas. */
+            this.canvas.width = this.canvasContainer.clientWidth;
+            this.canvas.height = this.canvasContainer.clientHeight;
+            this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        this.canvasDirtyRegion.setClean();
     }
 
     supportsTextColour() {
