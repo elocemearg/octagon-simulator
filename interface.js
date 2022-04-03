@@ -29,7 +29,7 @@ let optionsDesc = {
         "type" : "select",
         "id" : "clockdesign",
         "category" : "options",
-        "default" : "0"
+        "default" : "octagon"
     },
     "startminutes" : {
         "type" : "number",
