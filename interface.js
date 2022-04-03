@@ -723,7 +723,7 @@ function clockDesignChanged() {
     activeClockDesign.clearClock();
     activeClockDesign = clockDesigns[optionsValues["clockdesign"]];
     if (activeClockDesign == null) {
-        activeClockDesign = clockDesigns["htmlbox"];
+        activeClockDesign = clockDesigns["boring"];
     }
     applyAppearanceOptions(activeClockDesign);
     applyPositionOptions(activeClockDesign);
@@ -1171,7 +1171,7 @@ function initialise() {
     numCanvasClocks = 2;
     clockDesigns["octagon"] = new OctagonCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     clockDesigns["nixie"] = new NixieCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
-    clockDesigns["htmlbox"] = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
+    clockDesigns["boring"] = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
     activeClockDesign = clockDesigns["octagon"];
 
     countControl = document.getElementById("count");

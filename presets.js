@@ -151,7 +151,7 @@ const presetBoringStopwatch = {
     "options" : {
         "countermode": "0",
         "displayclock": true,
-        "clockdesign": "htmlbox",
+        "clockdesign": "boring",
         "startminutes": 0,
         "startseconds": 0,
         "countup": true,
@@ -184,7 +184,7 @@ const presetBoringCountdown = {
     "options" : {
         "countermode": "0",
         "displayclock": true,
-        "clockdesign": "htmlbox",
+        "clockdesign": "boring",
         "startminutes": 3,
         "startseconds": 0,
         "countup": false,
