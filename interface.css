@@ -18,6 +18,71 @@ body {
     font-size: 10pt;
     border-radius: 10px;
     max-width: 400px;
+    z-index: 1;
+}
+
+#canvas {
+    z-index: 0;
+}
+
+#presetspanelcontainer {
+    position: relative;
+    height: 120px;
+}
+
+div.presetsheader {
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+div.presetspanel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    max-width: 80vw;
+    overflow-x: auto;
+    background-color: white;
+    padding: 10px;
+    font-size: 10pt;
+    border-radius: 10px;
+    z-index: 1;
+    vertical-align: top;
+    box-shadow: 3px 3px 10px black;
+}
+
+div.presetdesignsection {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 5px;
+}
+
+div.presetdesignheader {
+    height: 18px;
+    font-size: 15px;
+    width: 100%;
+    border-bottom: solid black 1px;
+    margin-bottom: 5px;
+}
+
+div.presetbox {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+}
+
+div.presetimage {
+    display: inline-block;
+    height: 50px;
+}
+
+div.presetdesc {
+    position: relative;
+    max-width: 100px;
+    height: 20px;
+    font-size: 12px;
+    white-space: normal;
 }
 
 #menu input[type="number"] {

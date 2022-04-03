@@ -162,6 +162,15 @@ let optionsDesc = {
         "id" : "bgdisable",
         "category" : "appearance",
         "default" : false
+    },
+    "showpresets" : {
+        "type" : "menuvisibility",
+        "linkid" : "togglepresetslink",
+        "objectid" : "presetspanelcontainer",
+        "showtext" : "Show presets",
+        "hidetext" : "Hide presets",
+        "category" : "showmenus",
+        "default" : true
     }
 };
 let refreshTimer = null;
@@ -312,6 +321,19 @@ function setNumberInput(elementId, value) {
     }
 }
 
+function setMenuVisibility(linkId, objectId, showText, hideText, show) {
+    let link = document.getElementById(linkId);
+    let obj = document.getElementById(objectId);
+    if (show) {
+        link.innerText = hideText;
+        obj.style.display = null;
+    }
+    else {
+        link.innerText = showText;
+        obj.style.display = "none";
+    }
+}
+
 /* Read one form control (id specified by elementId) and save its value to
  * valueMap[mapKey]. This is the opposite of setControlFromOptionValue().
  * elementType must be one of "number", "select", "checkbox" and "color", and
@@ -340,7 +362,10 @@ function setOptionValueFromControl(valueMap, elementType, elementId, defaultValu
 /* Update one form control with an option value looked up from valueMap.
  * descMap[mapKey] must be an object containing "type" (e.g. "number",
  * "checkbox" etc), and "id" (the id of the <input> tag). The input element's
- * value will change to reflect the value in valueMap[mapKey]. */
+ * value will change to reflect the value in valueMap[mapKey].
+ *
+ * If the type is "menuvisibility", it must have "linkid", "objectid",
+ * "showtext" and "hidetext". */
 function setControlFromOptionValue(valueMap, descMap, mapKey) {
     let desc = descMap[mapKey];
     let t = desc["type"];
@@ -361,6 +386,9 @@ function setControlFromOptionValue(valueMap, descMap, mapKey) {
     }
     else if (t === "radio") {
         setRadioInput(elementId, value);
+    }
+    else if (t === "menuvisibility") {
+        setMenuVisibility(desc["linkid"], desc["objectid"], desc["showtext"], desc["hidetext"], value)
     }
 }
 
@@ -516,7 +544,7 @@ function stringValueToUsefulValue(desc, value) {
             if (isNaN(value))
                 value = null;
         }
-        else if (t === "checkbox") {
+        else if (t === "checkbox" || t === "menuvisibility") {
             value = stringToBool(value);
         }
         return value;
@@ -677,6 +705,17 @@ function setClassVisible(className, visible) {
     }
 }
 
+function applyPositionOptions(clockDesign) {
+    clockDesign.setPosition(optionsValues["xpospc"], optionsValues["ypospc"],
+        optionsValues["xposanchor"] === "right",
+        optionsValues["yposanchor"] === "bottom");
+    clockDesign.setScaleFactor(optionsValues["scalefactor"] / 100);
+}
+
+function applyMenuVisibilityOptions() {
+    setControlFromOptionValue(optionsValues, optionsDesc, "showpresets");
+}
+
 function clockDesignChanged() {
     enableSaveButton();
     refreshOptions();
@@ -730,13 +769,6 @@ function refreshAppearance() {
         document.body.style.backgroundColor = document.getElementById("bgcolor").value;
     }
     applyAppearanceOptions(activeClockDesign);
-}
-
-function applyPositionOptions(clockDesign) {
-    clockDesign.setPosition(optionsValues["xpospc"], optionsValues["ypospc"],
-        optionsValues["xposanchor"] === "right",
-        optionsValues["yposanchor"] === "bottom");
-    clockDesign.setScaleFactor(optionsValues["scalefactor"] / 100);
 }
 
 function refreshPosition() {
@@ -1071,6 +1103,8 @@ function initialise() {
     counterModeCheckbox = document.getElementById("countermode");
     clockInstructions = document.getElementById("clockinstructions");
     counterInstructions = document.getElementById("counterinstructions");
+    presetsPanelContainer = document.getElementById("presetspanelcontainer");
+    togglePresetsLink = document.getElementById("togglepresetslink");
 }
 
 /* Save the settings currently in optionsValues to the cookie. */
@@ -1115,6 +1149,11 @@ function hideCookieDetails() {
     let cookieDetails = document.getElementById("cookiedetails");
     cookieSummary.style.display = null;
     cookieDetails.style.display = "none";
+}
+
+function togglePresetsHeader() {
+    optionsValues["showpresets"] = !optionsValues["showpresets"];
+    applyMenuVisibilityOptions();
 }
 
 /* Show the div whose id is <name>section and put an up-arrow in the
