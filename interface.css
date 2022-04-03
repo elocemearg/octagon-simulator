@@ -137,6 +137,16 @@ button.countercontrolbutton {
     font-size: 12pt;
 }
 
+div.radiorow input {
+    margin-top: 0;
+    vertical-align: middle;
+}
+
+div.radiorow label {
+    margin-top: 0;
+    vertical-align: middle;
+}
+
 div.sectionbody table {
     margin-left: 10px;
 }
