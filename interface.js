@@ -638,6 +638,10 @@ function restoreOptionsFromURL() {
     }
 }
 
+function isCounterMode() {
+    return parseInt(optionsValues["countermode"]) !== 0;
+}
+
 /* Set all the values in optionsValues to their defaults, and update the
  * form controls accordingly. */
 function initialiseOptions() {
@@ -660,12 +664,12 @@ function refreshOptions() {
 
     if (clock.getDirection() != newDirection) {
         clock.setDirection(optionsValues["countup"] ? 1 : -1);
-        if (clock.isRunning()) {
+        if (clock.isRunning() && !isCounterMode()) {
             setNextSecondTimeout();
         }
     }
 
-    if (optionsValues["showtenths"]) {
+    if (optionsValues["showtenths"] && clock.isRunning() && !isCounterMode()) {
         setNextSecondTimeout();
     }
 }
@@ -782,7 +786,7 @@ function refreshClock() {
 
     if (optionsValues["displayclock"]) {
         let timeString;
-        if (parseInt(optionsValues["countermode"]) !== 0) {
+        if (isCounterMode()) {
             timeString = formatNumber(countValue, optionsValues["counterwidth"],
                 optionsValues["leadingzero"]);
         }
@@ -819,7 +823,7 @@ function setNextSecondTimeout() {
 function refreshClockTimeout() {
     //console.log("refreshClockTimeout(): clock value is " + clock.getValueMs().toString());
     refreshClock();
-    if (clock.isRunning()) {
+    if (clock.isRunning() && !isCounterMode()) {
         setNextSecondTimeout();
     }
 }
@@ -1020,7 +1024,7 @@ function keyListener(e) {
             break;
 
         case 82:
-            if (parseInt(optionsValues["countermode"]) !== 0) {
+            if (isCounterMode()) {
                 resetCounter();
             }
             else {
