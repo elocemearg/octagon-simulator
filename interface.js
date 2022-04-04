@@ -171,6 +171,12 @@ let optionsDesc = {
         "hidetext" : "Hide presets",
         "category" : "showmenus",
         "default" : true
+    },
+    "typeface" : {
+        "type" : "select",
+        "id" : "typeface",
+        "category" : "appearance",
+        "default" : "Inter"
     }
 };
 let refreshTimer = null;
@@ -736,6 +742,7 @@ function clockDesignChanged() {
     setClassVisible("textcolourcontrol", activeClockDesign.supportsTextColour());
     setClassVisible("textoutlinecontrol", activeClockDesign.supportsTextOutline());
     setClassVisible("textshadowcontrol", activeClockDesign.supportsTextShadow());
+    setClassVisible("fontcontrol", activeClockDesign.supportsFonts());
 
     refreshClock();
 }
@@ -756,6 +763,9 @@ function applyAppearanceOptions(clockDesign) {
     }
     if (clockDesign.supportsTextShadow()) {
         clockDesign.setShadow(optionsValues["shadowlength"], parseInt(optionsValues["shadowdir"]));
+    }
+    if (clockDesign.supportsFonts()) {
+        clockDesign.setFontFamily(optionsValues["typeface"]);
     }
     clockDesign.setBorder(optionsValues["showborder"]);
     if (clockDesign.supportsClockBackground()) {

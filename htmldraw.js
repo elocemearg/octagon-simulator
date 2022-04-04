@@ -19,6 +19,29 @@ function tripleToRGBAString(colour, alpha) {
     return s;
 }
 
+/* Scan "src" and replace every run of consecutive occurrences of the character
+ * "seek" with a <span style="visibility: hidden"></span> tag, whose contents
+ * is that same number of occurrences of the character "repl" and return the
+ * result. */
+function replaceWithInvisible(src, seek, repl) {
+    let dest = "";
+    let srcPos = 0;
+    while (srcPos < src.length) {
+        if (src.charAt(srcPos) == seek) {
+            dest += "<span style=\"visibility: hidden\">"
+            while (srcPos < src.length && src.charAt(srcPos) == seek) {
+                dest += repl;
+                srcPos++;
+            }
+            dest += "</span>";
+        }
+        else {
+            dest += src.charAt(srcPos++);
+        }
+    }
+    return dest;
+}
+
 class HTMLBoxClockDesign extends ClockDesign {
     constructor(container, uniqueClassName) {
         super();
@@ -26,7 +49,7 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.div = document.createElement("DIV");
         this.div.classList.add(uniqueClassName);
         this.div.style.position = "absolute";
-        this.div.style.fontFamily = [ "Inter", "sans-serif" ];
+        this.div.style.fontFamily = [ this.fontFamily, "sans-serif" ];
         this.div.style.fontVariantNumeric = "tabular-nums";
         this.div.style.display = "none"; // don't display anything yet
         this.container.appendChild(this.div);
@@ -56,14 +79,27 @@ class HTMLBoxClockDesign extends ClockDesign {
         return true;
     }
 
+    supportsFonts() {
+        return true;
+    }
+
     applyStyle() {
         let charHeightPx = this.scaleFactor * this.container.clientHeight / 15;
         let lengthUnitPx = charHeightPx / 40;
         this.div.style.fontSize = charHeightPx.toString() + "px";
         this.div.style.color = tripleToRGBString(this.textColour);
         this.div.style.display = "block";
-        this.div.style.paddingLeft = (lengthUnitPx * 10).toString() + "px";
-        this.div.style.paddingRight = (lengthUnitPx * 10).toString() + "px";
+        this.div.style.paddingLeft = "0.25em";
+        this.div.style.paddingRight = "0.25em";
+        this.div.style.fontFamily = [ this.fontFamily, "sans-serif" ];
+
+        if (this.fontFamily == "'Press Start 2P'") {
+            /* Press Start 2P has zero padding on top; fix that */
+            this.div.style.paddingTop = (charHeightPx / 8).toString() + "px";
+        }
+        else {
+            this.div.style.paddingTop = null;
+        }
 
         if (this.showBorder) {
             this.div.style.backgroundColor = tripleToRGBAString(this.clockBackgroundColour, this.clockBackgroundAlpha);
@@ -133,10 +169,19 @@ class HTMLBoxClockDesign extends ClockDesign {
             this.applyStyle();
         }
 
-        /* Replace spaces with &numsp and - with &minus so that space padding
-         * works and the minus sign looks a bit more minusy. */
-        string = string.replace(/ /g, "&numsp;");
-        string = string.replace(/-/g, "&minus;");
+        if (this.fontFamily != "'Press Start 2P'") {
+            /* Replace - with &minus so it looks a bit more minusy, except
+             * don't do that with Press Start 2P because it doesn't have a
+             * specific &minus; character. */
+            string = string.replace(/-/g, "&minus;");
+        }
+
+        /* Replace every run of spaces with the same number of invisible digits.
+         * We can't use &numsp; because that turns out not always to be exactly
+         * the same width as a digit. When " 9" becomes "10" we don't want the
+         * size of the div to change. */
+        string = replaceWithInvisible(string, " ", "0");
+
         this.div.innerHTML = string;
     }
 

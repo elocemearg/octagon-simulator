@@ -6,18 +6,22 @@
         <meta name="author" content="Graeme Cole">
         <meta name="description" content="On-screen countdown clock mockup">
         <link rel="stylesheet" type="text/css" href="interface.css?bump=1" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boogaloo&family=Inter&family=Nova+Mono&family=Press+Start+2P&family=Questrial&display=swap" rel="stylesheet">
+
         <link rel="icon" type="image/png" href="icons/octagonfavicon128.png" sizes="128x128">
         <link rel="icon" type="image/png" href="icons/octagonfavicon64.png" sizes="64x64">
         <link rel="icon" type="image/x-icon" href="icons/octagonfavicon32.ico">
     </head>
     <body onload="initialise();">
         <script src="font.js?bump=1"></script>
-        <script src="draw.js?bump=1"></script>
-        <script src="htmldraw.js?bump=1"></script>
+        <script src="draw.js?bump=2"></script>
+        <script src="htmldraw.js?bump=2"></script>
         <script src="clock.js?bump=2"></script>
         <script src="presets.js?bump=1"></script>
-        <script src="interface.js?bump=2"></script>
+        <script src="interface.js?bump=3"></script>
 
         <div id="screen">
             <canvas id="canvas"></canvas>
@@ -142,6 +146,17 @@
                             <option value="octagon" selected>Octagon</option>
                             <option value="nixie">Nixie tubes</option>
                             <option value="boring">Boring</option>
+                        </select>
+                    </div>
+                    <div class="menurow fontcontrol" style="margin-top: 5px; margin-bottom: 5px;">
+                        <label for="typeface">Typeface</label>
+                        <select name="typeface" id="typeface" onchange="appearanceChanged();">
+                            <option value="Bebas Neue" style="font-family: Bebas Neue;">Bebas Neue</option>
+                            <option value="Boogaloo" style="font-family: Boogaloo;">Boogaloo</option>
+                            <option value="Inter" style="font-family: Inter;" selected>Inter</option>
+                            <option value="Nova Mono" style="font-family: Nova Mono;">Nova Mono</option>
+                            <option value="'Press Start 2P'" style="font-family: 'Press Start 2P';">Press Start 2P</option>
+                            <option value="Questrial" style="font-family: Questrial;">Questrial</option>
                         </select>
                     </div>
                     <div class="menurow">
@@ -303,12 +318,18 @@
                 <a href="https://www.youtube.com/watch?v=g80rnhK-cKo#t=16m32s" target="_blank">this video about the BBC Micro with Tom Scott and the Centre for Computing History</a>.
                 The font for the numbers was reverse-engineered from
                 screenshots of old shows, probably not quite accurately.
+                The page has since grown some additional features and clock
+                designs.
                 </p>
                 <p>
-                It has since grown some additional features and clock designs.
+                The typefaces provided in the drop-down list with for the
+                "Boring" design under "Format &amp; Display" are selected
+                from the <a href="https://fonts.google.com/" target="_blank">Google Fonts</a>
+                library and all have or support fixed-width digits.
                 </p>
                 <p>
-                <a href="https://github.com/elocemearg/octagon-simulator" target="_blank">Source code on GitHub</a>
+                Octagon Simulator's
+                <a href="https://github.com/elocemearg/octagon-simulator" target="_blank">source code is on GitHub</a>.
                 </p>
                 </div>
             </div>

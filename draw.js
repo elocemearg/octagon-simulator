@@ -44,6 +44,7 @@ class ClockDesign {
         this.shadowDirection = SOUTHEAST;
         this.showBorder = true;
         this.textColour = [ 255, 255, 255 ];
+        this.fontFamily = "Inter";
         this.styleChanged = true;
     }
 
@@ -123,6 +124,15 @@ class ClockDesign {
 
     supportsTextShadow() {
         return true;
+    }
+
+    supportsFonts() {
+        return false;
+    }
+
+    setFontFamily(f) {
+        this.fontFamily = f;
+        this.styleChanged = true;
     }
 }
 
