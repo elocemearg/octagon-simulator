@@ -4,11 +4,17 @@ const OCTAGON_INTER_CHAR_SPACE = 18;
 const OCTAGON_BORDER_TO_CHAR_SPACE = 18;
 const OCTAGON_ASSUMED_SCREEN_HEIGHT = 576;
 
-/* Nixie: NixieCanvasClockDesign */
+/* Class: NixieCanvasClockDesign */
 const NIXIE_DESIGN_NAME = "nixie";
 const NIXIE_INTER_CHAR_SPACE = 0;
 const NIXIE_BORDER_TO_CHAR_SPACE = 12;
 const NIXIE_ASSUMED_SCREEN_HEIGHT = 1800;
+
+/* Class: TeletextCanvasClockDesign */
+const TELETEXT_DESIGN_NAME = "teletext";
+const TELETEXT_INTER_CHAR_SPACE = 0;
+const TELETEXT_BORDER_TO_CHAR_SPACE = 0;
+const TELETEXT_ASSUMED_SCREEN_HEIGHT = 1800;
 
 const directionToXY = [
     [  0, -1 ], // north
@@ -30,6 +36,25 @@ const SOUTH = 4;
 const SOUTHWEST = 5;
 const WEST = 6;
 const NORTHWEST = 7;
+
+function numberTo2Hex(v) {
+    let s;
+    v &= 255;
+
+    s = v.toString(16);
+    if (s.length == 1)
+        s = "0" + s;
+    return s;
+}
+
+/* Convert an array [red, green, blue] to an RGB hex string value. The three
+ * elements of the array must be integers 0-255.
+ * For example, if arr = [ 0, 177, 64 ], the function returns "#00b140".
+ */
+function RGBArrayToHex(arr) {
+    return "#" + numberTo2Hex(arr[0]) + numberTo2Hex(arr[1]) + numberTo2Hex(arr[2]);
+}
+
 
 class ClockDesign {
     constructor() {
@@ -104,7 +129,7 @@ class ClockDesign {
     /* borderColour: [ red, green, blue ], each component 0-255.
      * borderAlpha: 0.0-1.0, transparency of the border, especially where it
      * appears as a box background for the clock. */
-    setClockBackgroundColour(colour, clockBackgroundAlpha) {
+    setClockBackgroundColour(clockBackgroundColour, clockBackgroundAlpha) {
         this.clockBackgroundColour = clockBackgroundColour;
         this.clockBackgroundAlpha = clockBackgroundAlpha;
         this.styleChanged = true;
@@ -128,6 +153,15 @@ class ClockDesign {
 
     supportsFonts() {
         return false;
+    }
+
+    supportsDoubleHeight() {
+        return false;
+    }
+
+    setDoubleHeight(yes) {
+        this.doubleHeight = yes;
+        this.styleChanged = true;
     }
 
     setFontFamily(f) {
@@ -246,6 +280,8 @@ class CanvasClockDesign extends ClockDesign {
         this.transparentImages = transparentImages;
         this.canvasDirtyRegion = new CanvasDirtyRegion();
         this.clockBrushCanvas = document.createElement("canvas");
+        this.doubleHeight = false;
+        this.yStretchFactor = 1;
 
         for (let i = 0; i < characterUrls.length; ++i) {
             this.characterImages.push(null);
@@ -424,7 +460,11 @@ class CanvasClockDesign extends ClockDesign {
     /* Scale factor by which we scale the canvas we paint, which takes into
      * account the user setting and the font's assumed screen height relative
      * to the actual canvas height. */
-    calculateModifiedScaleFactor() {
+    calculateModifiedYScaleFactor() {
+        return this.scaleFactor * this.canvas.height * this.yStretchFactor * (this.doubleHeight ? 2 : 1) / this.fontScreenHeight;
+    }
+
+    calculateModifiedXScaleFactor() {
         return this.scaleFactor * this.canvas.height / this.fontScreenHeight;
     }
 
@@ -454,8 +494,8 @@ class CanvasClockDesign extends ClockDesign {
 
         /* Scale the characters by the ratio of the actual canvas height and
          * the screen height assumed by the PNG files */
-        let scaleY = this.calculateModifiedScaleFactor();
-        let scaleX = scaleY;
+        let scaleY = this.calculateModifiedYScaleFactor();
+        let scaleX = this.calculateModifiedXScaleFactor();
 
         let destContext = destCanvas.getContext("2d");
 
@@ -475,10 +515,27 @@ class CanvasClockDesign extends ClockDesign {
          * We set this to something positive if ther's any outline or shadow. */
         let padding = 0;
 
-        /* finishedCanvas's dimensions are the same as the clock image for now.
-         * If we add outline or shadow below, we'll make it larger then. */
-        finishedCanvas.width = clockBrushCanvas.width;
-        finishedCanvas.height = clockBrushCanvas.height;
+        if (this.transparentImages) {
+            /* Padding: make our intermediate canvases the size of the clock
+             * image, plus the expected outline and shadow */
+            padding = this.shadowLength + this.outlineSize;
+            finishedCanvas.width = clockBrushCanvas.width + 2 * padding;
+            finishedCanvas.height = clockBrushCanvas.height + 2 * padding;
+        }
+        else {
+            finishedCanvas.width = clockBrushCanvas.width;
+            finishedCanvas.height = clockBrushCanvas.height;
+        }
+
+        if (this.supportsClockBackground()) {
+            if (this.clockBackgroundAlpha > 0 && this.showBorder) {
+                /* Fill the clock space with the clock background colour */
+                finishedContext.globalAlpha = this.clockBackgroundAlpha;
+                finishedContext.fillStyle = RGBArrayToHex(this.clockBackgroundColour);
+                finishedContext.fillRect(0, 0, finishedCanvas.width, finishedCanvas.height);
+                finishedContext.globalAlpha = 1;
+            }
+        }
 
         if (this.transparentImages) {
             /* Outline canvas: we'll use the clock image and stamp it onto the
@@ -488,14 +545,8 @@ class CanvasClockDesign extends ClockDesign {
             let outlineContext = outlineCanvas.getContext("2d");
             let clockBrushImage = clockBrushContext.getImageData(0, 0, clockBrushCanvas.width, clockBrushCanvas.height);
 
-            /* Padding: make our intermediate canvases the size of the clock
-             * image, plus the expected outline and shadow */
-            padding = this.shadowLength + this.outlineSize;
             outlineCanvas.width = (clockBrushImage.width + 2 * padding);
             outlineCanvas.height = (clockBrushImage.height + 2 * padding);
-            finishedCanvas.width = outlineCanvas.width;
-            finishedCanvas.height = outlineCanvas.height;
-
             if (this.outlineColour != null) {
                 /* Draw the outline, in outlineColour */
                 CanvasClockDesign.changeNonTransparentPixelColour(clockBrushImage, this.outlineColour);
@@ -557,8 +608,9 @@ class CanvasClockDesign extends ClockDesign {
              * what's already been painted on. */
             if (!this.canvasDirtyRegion.isClean()) {
                 let context = this.canvas.getContext("2d");
-                let scale = this.calculateModifiedScaleFactor();
-                context.setTransform(scale, 0, 0, scale, 0, 0);
+                let scaleY = this.calculateModifiedYScaleFactor();
+                let scaleX = this.calculateModifiedXScaleFactor();
+                context.setTransform(scaleX, 0, 0, scaleY, 0, 0);
                 context.clearRect(
                     Math.max(0, this.canvasDirtyRegion.getLeft() - 1),
                     Math.max(0, this.canvasDirtyRegion.getTop() - 1),
@@ -605,5 +657,23 @@ class NixieCanvasClockDesign extends CanvasClockDesign {
         super(canvas, canvasContainer, characterDesignUrls[NIXIE_DESIGN_NAME],
             NIXIE_INTER_CHAR_SPACE, NIXIE_BORDER_TO_CHAR_SPACE,
             NIXIE_ASSUMED_SCREEN_HEIGHT, false, finishedCallback);
+    }
+}
+
+class TeletextCanvasClockDesign extends CanvasClockDesign {
+    constructor(canvas, canvasContainer, finishedCallback) {
+        super(canvas, canvasContainer, characterDesignUrls[TELETEXT_DESIGN_NAME],
+            TELETEXT_INTER_CHAR_SPACE, TELETEXT_BORDER_TO_CHAR_SPACE,
+            TELETEXT_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
+        this.yStretchFactor = 3/2;
+        this.doubleHeight = false;
+    }
+
+    supportsClockBackground() {
+        return true;
+    }
+
+    supportsDoubleHeight() {
+        return true;
     }
 }

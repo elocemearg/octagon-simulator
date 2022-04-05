@@ -177,6 +177,12 @@ let optionsDesc = {
         "id" : "typeface",
         "category" : "appearance",
         "default" : "Inter"
+    },
+    "doubleheight" : {
+        "type" : "checkbox",
+        "id" : "doubleheight",
+        "category" : "appearance",
+        "default" : false
     }
 };
 let refreshTimer = null;
@@ -273,24 +279,6 @@ function setArrayFromColour(map, elementId, defaultValue=null, mapName=null) {
         map[mapName] = defaultValue;
     else
         map[mapName] = ret;
-}
-
-function numberTo2Hex(v) {
-    let s;
-    v &= 255;
-
-    s = v.toString(16);
-    if (s.length == 1)
-        s = "0" + s;
-    return s;
-}
-
-/* Convert an array [red, green, blue] to an RGB hex string value. The three
- * elements of the array must be integers 0-255.
- * For example, if arr = [ 0, 177, 64 ], the function returns "#00b140".
- */
-function RGBArrayToHex(arr) {
-        return "#" + numberTo2Hex(arr[0]) + numberTo2Hex(arr[1]) + numberTo2Hex(arr[2]);
 }
 
 function setColourInput(elementId, value) {
@@ -742,6 +730,7 @@ function clockDesignChanged() {
     setClassVisible("textcolourcontrol", activeClockDesign.supportsTextColour());
     setClassVisible("textoutlinecontrol", activeClockDesign.supportsTextOutline());
     setClassVisible("textshadowcontrol", activeClockDesign.supportsTextShadow());
+    setClassVisible("doubleheightcontrol", activeClockDesign.supportsDoubleHeight());
     setClassVisible("fontcontrol", activeClockDesign.supportsFonts());
 
     refreshClock();
@@ -766,6 +755,9 @@ function applyAppearanceOptions(clockDesign) {
     }
     if (clockDesign.supportsFonts()) {
         clockDesign.setFontFamily(optionsValues["typeface"]);
+    }
+    if (clockDesign.supportsDoubleHeight()) {
+        clockDesign.setDoubleHeight(optionsValues["doubleheight"]);
     }
     clockDesign.setBorder(optionsValues["showborder"]);
     if (clockDesign.supportsClockBackground()) {
@@ -1182,9 +1174,10 @@ function initialise() {
     hideOptionsSection("save");
     hideOptionsSection("about");
 
-    numCanvasClocks = 2;
+    numCanvasClocks = 3;
     clockDesigns["octagon"] = new OctagonCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     clockDesigns["nixie"] = new NixieCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
+    clockDesigns["teletext"] = new TeletextCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     clockDesigns["boring"] = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
     activeClockDesign = clockDesigns["octagon"];
 

@@ -145,6 +145,7 @@
                         <select name="clockdesign" id="clockdesign" onchange="clockDesignChanged();">
                             <option value="octagon" selected>Octagon</option>
                             <option value="nixie">Nixie tubes</option>
+                            <option value="teletext">Teletext</option>
                             <option value="boring">Boring</option>
                         </select>
                     </div>
@@ -170,6 +171,9 @@
                     </div>
                     <div class="menurow clockmodecontrols">
                         <input type="checkbox" id="showtenths" name="showtenths" onclick="optionsChanged();" /><label for="showtenths">Show tenths</label>
+                    </div>
+                    <div class="menurow doubleheightcontrol">
+                        <input type="checkbox" id="doubleheight" name="doubleheight" onclick="appearanceChanged();" checked /><label for="doubleheight">Double height characters</label>
                     </div>
                     <div class="menurow clockmodecontrols">
                         <label for="format">Display format</label>
@@ -249,7 +253,7 @@
                         </tr>
                     </table>
                     <div class="menurow">
-                        <input type="checkbox" name="bgdisable" id="bgdisable" onclick="appearanceChanged();" /><label for="bgdisable">Disable background colour</label>
+                        <input type="checkbox" name="bgdisable" id="bgdisable" onclick="appearanceChanged();" /><label for="bgdisable">Disable page background colour</label>
                     </div>
                 </div>
             </div>

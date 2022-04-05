@@ -92,6 +92,142 @@ const presetOctagonCountdown3m = {
     }
 };
 
+const presetTeletextStopwatch = {
+    "name" : "teletextstopwatch",
+    "imageurl" : "presetimages/teletextstopwatch.jpg",
+    "desc" : "Up from zero",
+    "options" : {
+        "countermode" : 0,
+        "displayclock": true,
+        "clockdesign": "teletext",
+        "startminutes": 0,
+        "startseconds": 0,
+        "countup": true,
+        "leadingzero": false,
+        "showtenths": true,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "clockbgcolor": [ 0, 0, 0 ],
+        "clockbgalpha": 100,
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 0,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 0,
+        "scalefactor": 100,
+        "xposanchor": "right",
+        "yposanchor": "top",
+        "xpospc": 90,
+        "ypospc": 10,
+        "bgdisable": false,
+        "doubleheight" : false,
+        "showpresets": true
+    }
+};
+
+const presetTeletextCountdown = {
+    "name" : "teletextcountdown",
+    "imageurl" : "presetimages/teletextcountdown.jpg",
+    "desc" : "3:00 → 0:00",
+    "options" : {
+        "countermode" : 0,
+        "displayclock": true,
+        "clockdesign": "teletext",
+        "startminutes": 3,
+        "startseconds": 0,
+        "countup": false,
+        "leadingzero": false,
+        "showtenths": false,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "clockbgcolor": [ 0, 0, 0 ],
+        "clockbgalpha": 100,
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 0,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 0,
+        "scalefactor": 100,
+        "xposanchor": "right",
+        "yposanchor": "top",
+        "xpospc": 90,
+        "ypospc": 10,
+        "bgdisable": false,
+        "doubleheight" : false,
+        "showpresets": true
+    }
+};
+
+const presetTeletextStopwatch2 = {
+    "name" : "teletextstopwatch2",
+    "imageurl" : "presetimages/teletextstopwatch2.jpg",
+    "desc" : "Up from zero",
+    "options" : {
+        "countermode" : 0,
+        "displayclock": true,
+        "clockdesign": "teletext",
+        "startminutes": 0,
+        "startseconds": 0,
+        "countup": true,
+        "leadingzero": false,
+        "showtenths": true,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "clockbgcolor": [ 0, 0, 0 ],
+        "clockbgalpha": 100,
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 0,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 0,
+        "scalefactor": 100,
+        "xposanchor": "right",
+        "yposanchor": "top",
+        "xpospc": 90,
+        "ypospc": 10,
+        "bgdisable": false,
+        "doubleheight" : true,
+        "showpresets": true
+    }
+};
+
+const presetTeletextCountdown2 = {
+    "name" : "teletextcountdown2",
+    "imageurl" : "presetimages/teletextcountdown2.jpg",
+    "desc" : "3:00 → 0:00",
+    "options" : {
+        "countermode" : 0,
+        "displayclock": true,
+        "clockdesign": "teletext",
+        "startminutes": 3,
+        "startseconds": 0,
+        "countup": false,
+        "leadingzero": false,
+        "showtenths": false,
+        "showborder": true,
+        "format": "3",
+        "bgcolor": [ 0, 177, 64 ],
+        "clockbgcolor": [ 0, 0, 0 ],
+        "clockbgalpha": 100,
+        "outlinecolor": [ 0, 0, 0 ],
+        "outlinesize": 0,
+        "scalefactor": 100,
+        "shadowdir": "3",
+        "shadowlength": 0,
+        "scalefactor": 100,
+        "xposanchor": "right",
+        "yposanchor": "top",
+        "xpospc": 90,
+        "ypospc": 10,
+        "bgdisable": false,
+        "doubleheight" : true,
+        "showpresets": true
+    }
+};
+
 const presetNixieStopwatch = {
     "name" : "nixiestopwatch",
     "imageurl" : "presetimages/nixiestopwatch.jpg",
@@ -218,6 +354,20 @@ const clockPresetBanner = {
 				presetOctagonStopwatch,
 				presetOctagonCountdown30,
 				presetOctagonCountdown3m,
+            ]
+        },
+        {
+            "name" : "Teletext",
+            "presets" : [
+                presetTeletextStopwatch,
+                presetTeletextCountdown
+            ]
+        },
+        {
+            "name" : "Teletext Double Height",
+            "presets" : [
+                presetTeletextStopwatch2,
+                presetTeletextCountdown2
             ]
         },
         {
