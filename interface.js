@@ -3,6 +3,7 @@ let optionsValues = {};
 let countValue = 0;
 let countControl = null;
 let counterModeCheckbox = null;
+let rtcModeCheckbox = null;
 let clockInstructions = null;
 let counterInstructions = null;
 
@@ -54,6 +55,18 @@ let optionsDesc = {
         "id" : "leadingzero",
         "category" : "options",
         "default" : false
+    },
+    "allowhours" : {
+        "type" : "checkbox",
+        "id" : "allowhours",
+        "category" : "options",
+        "default" : true
+    },
+    "showrtcseconds" : {
+        "type" : "checkbox",
+        "id" : "showrtcseconds",
+        "category" : "options",
+        "default" : true
     },
     "showtenths" : {
         "type" : "checkbox",
@@ -632,8 +645,16 @@ function restoreOptionsFromURL() {
     }
 }
 
+function isClockMode() {
+    return parseInt(optionsValues["countermode"]) === 0;
+}
+
 function isCounterMode() {
-    return parseInt(optionsValues["countermode"]) !== 0;
+    return parseInt(optionsValues["countermode"]) === 1;
+}
+
+function isRTCMode() {
+    return parseInt(optionsValues["countermode"]) === 2;
 }
 
 /* Set all the values in optionsValues to their defaults, and update the
@@ -658,38 +679,69 @@ function refreshOptions() {
 
     if (clock.getDirection() != newDirection) {
         clock.setDirection(optionsValues["countup"] ? 1 : -1);
-        if (clock.isRunning() && !isCounterMode()) {
+        if ((isClockMode() && clock.isRunning()) || isRTCMode()) {
             setNextSecondTimeout();
         }
     }
 
-    if (optionsValues["showtenths"] && clock.isRunning() && !isCounterMode()) {
+    if (optionsValues["showtenths"] && ((clock.isRunning() && isClockMode()) || isRTCMode())) {
         setNextSecondTimeout();
     }
 }
 
+function arrayLikeConcat(a1, a2) {
+    let result = [];
+    for (let i = 0; i < a1.length; ++i) {
+        result.push(a1[i]);
+    }
+    for (let i = 0; i < a2.length; ++i) {
+        result.push(a2[i]);
+    }
+    return result;
+}
+
 function changeMode() {
     let counterMode = counterModeCheckbox.checked;
+    let rtcMode = rtcModeCheckbox.checked;
     let counterModeControls = document.getElementsByClassName("countermodecontrols");
     let clockModeControls = document.getElementsByClassName("clockmodecontrols");
-    for (let i = 0; i < counterModeControls.length; ++i) {
-        counterModeControls[i].style.display = counterMode ? "block" : "none";
+    let rtcModeControls = document.getElementsByClassName("rtcmodecontrols");
+    let allControls = arrayLikeConcat(arrayLikeConcat(counterModeControls, clockModeControls), rtcModeControls);
+    let visibleControls;
+
+    if (counterMode) {
+        visibleControls = counterModeControls;
     }
-    for (let i = 0; i < clockModeControls.length; ++i) {
-        clockModeControls[i].style.display = counterMode ? "none" : "block";
+    else if (rtcMode) {
+        visibleControls = rtcModeControls;
+    }
+    else {
+        visibleControls = clockModeControls;
     }
 
+    for (let i = 0; i < allControls.length; ++i) {
+        allControls[i].style.display = "none";
+    }
+    for (let i = 0; i < visibleControls.length; ++i) {
+        visibleControls[i].style.display = "block";
+    }
+
+    clockInstructions.style.display = "none";
+    counterInstructions.style.display = "none";
+    rtcInstructions.style.display = "none";
     if (counterMode) {
         if (refreshTimer != null) {
             clearTimeout(refreshTimer);
             refreshTimer = null;
         }
-        clockInstructions.style.display = "none";
         counterInstructions.style.display = "block";
+    }
+    else if (rtcMode) {
+        rtcInstructions.style.display = "block";
+        setNextSecondTimeout();
     }
     else {
         clockInstructions.style.display = "block";
-        counterInstructions.style.display = "none";
         setNextSecondTimeout();
     }
 
@@ -787,14 +839,27 @@ function refreshClock() {
         return;
 
     if (optionsValues["displayclock"]) {
-        let timeString;
+        let timeString = "";
         if (isCounterMode()) {
             timeString = formatNumber(countValue, optionsValues["counterwidth"],
                 optionsValues["leadingzero"]);
         }
-        else {
+        else if (isClockMode()) {
             timeString = clock.formatValue(parseInt(optionsValues["format"]),
-                optionsValues["leadingzero"], false, optionsValues["showtenths"] ? 1 : 0);
+                optionsValues["leadingzero"], false,
+                optionsValues["showtenths"] ? 1 : 0,
+                optionsValues["allowhours"]);
+        }
+        else if (isRTCMode()) {
+            let d = new Date();
+            let ms = d.getHours() * 3600000 + d.getMinutes() * 60000 + d.getSeconds() * 1000 + d.getMilliseconds();
+            timeString = Clock.formatMilliseconds(ms, 6,
+                optionsValues["leadingzero"], false,
+                optionsValues["showtenths"] ? 1 : 0, true);
+            if (!optionsValues["showtenths"] && !optionsValues["showrtcseconds"]) {
+                /* If the user doesn't want seconds, take the seconds off */
+                timeString = timeString.substring(0, timeString.length - 3);
+            }
         }
 
         activeClockDesign.drawClock(timeString);
@@ -810,9 +875,18 @@ function refreshClock() {
 }
 
 function setNextSecondTimeout() {
+    let ms;
     let timeoutInterval = optionsValues["showtenths"] ? 100 : 1000;
-    let ms = clock.getValueMs() % timeoutInterval;
-    if (clock.getDirection() > 0) {
+
+    if (isRTCMode()) {
+        let d = new Date();
+        ms = d.getHours() * 3600000 + d.getMinutes() * 60000 + d.getSeconds() * 1000 + d.getMilliseconds();
+        ms %= timeoutInterval;
+    }
+    else {
+        ms = clock.getValueMs() % timeoutInterval;
+    }
+    if (isRTCMode() || clock.getDirection() > 0) {
         ms = timeoutInterval - ms;
     }
     if (ms == 0)
@@ -825,7 +899,7 @@ function setNextSecondTimeout() {
 function refreshClockTimeout() {
     //console.log("refreshClockTimeout(): clock value is " + clock.getValueMs().toString());
     refreshClock();
-    if (clock.isRunning() && !isCounterMode()) {
+    if (isRTCMode() || (clock.isRunning() && isClockMode())) {
         setNextSecondTimeout();
     }
 }
@@ -935,9 +1009,11 @@ function setPresetButtonsEnabled(enabled) {
 
 function stopClock() {
     clock.stop();
-    if (refreshTimer != null) {
-        clearTimeout(refreshTimer);
-        refreshTimer = null;
+    if (isClockMode()) {
+        if (refreshTimer != null) {
+            clearTimeout(refreshTimer);
+            refreshTimer = null;
+        }
     }
     let startButton = document.getElementById("start");
     startButton.innerHTML = "&#x25B6; Start";
@@ -1029,7 +1105,7 @@ function keyListener(e) {
             if (isCounterMode()) {
                 resetCounter();
             }
-            else {
+            else if (isClockMode()) {
                 resetClock();
             }
             break;
@@ -1183,8 +1259,10 @@ function initialise() {
 
     countControl = document.getElementById("count");
     counterModeCheckbox = document.getElementById("countermode");
+    rtcModeCheckbox = document.getElementById("rtcmode");
     clockInstructions = document.getElementById("clockinstructions");
     counterInstructions = document.getElementById("counterinstructions");
+    rtcInstructions = document.getElementById("rtcinstructions");
     presetsPanelContainer = document.getElementById("presetspanelcontainer");
     togglePresetsLink = document.getElementById("togglepresetslink");
 

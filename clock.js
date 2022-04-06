@@ -8,8 +8,14 @@ function secondsToFormatCode(seconds) {
     else if (seconds < 600) {
         return 3;
     }
-    else {
+    else if (seconds < 3600) {
         return 4;
+    }
+    else if (seconds < 36000) {
+        return 5;
+    }
+    else {
+        return 6;
     }
 }
 
@@ -133,7 +139,7 @@ class Clock {
      * 2.9s shows as 2 if decimalPlaces=0). If the clock is counting downwards
      * we always round up (e.g. 2.1s shows as 3) - this is so that we only
      * display zero when the time has actually run out. */
-    getMsToFormat(valueMs, decimalPlaces) {
+    static getMsToFormat(valueMs, decimalPlaces) {
         if (decimalPlaces > 3)
             decimalPlaces = 3;
         if (decimalPlaces < 0)
@@ -146,6 +152,66 @@ class Clock {
         else {
             return Math.floor(valueMs / divisor) * divisor;
         }
+    }
+
+    static formatMilliseconds(valueMs, formatCode, useLeadingZero=false,
+            secondsOnly=false, decimalPlaces=0, allowHoursField=false) {
+        let minDigits;
+        let valueSeconds;
+        let msToShow;
+        let timeString = "";
+
+        msToShow = Clock.getMsToFormat(valueMs, decimalPlaces);
+        valueSeconds = Math.floor(msToShow / 1000);
+
+        if (formatCode == -2) {
+            minDigits = secondsToFormatCode(valueSeconds);
+        }
+        else {
+            minDigits = formatCode;
+        }
+
+        if (secondsOnly) {
+            timeString = formatNumber(valueSeconds, minDigits, useLeadingZero);
+        }
+        else {
+            let secondsPart, minutesPart, hoursPart;
+            let showingMinutes = (minDigits >= 3 || valueSeconds >= 60);
+            let showingHours = (minDigits >= 5 || (allowHoursField && valueSeconds >= 3600));
+            secondsPart = valueSeconds % 60;
+            if (showingHours) {
+                minutesPart = Math.floor(valueSeconds / 60) % 60;
+                hoursPart = Math.floor(valueSeconds / 3600);
+            }
+            else {
+                minutesPart = Math.floor(valueSeconds / 60);
+                hoursPart = 0;
+            }
+            timeString = formatNumber(secondsPart,
+                    (hoursPart > 0 || minutesPart > 0) ? 2 : Math.min(minDigits, 2),
+                    useLeadingZero || showingMinutes || showingHours);
+            if (showingMinutes || showingHours) {
+                timeString = ":" + timeString;
+                timeString = formatNumber(minutesPart,
+                    showingHours ? 2 : Math.min(Math.max(1, minDigits - 2), 2),
+                    useLeadingZero || showingHours) + timeString;
+                if (showingHours) {
+                    timeString = ":" + timeString;
+                    timeString = formatNumber(hoursPart, Math.max(1, minDigits - 4), useLeadingZero) + timeString;
+                }
+            }
+        }
+
+        if (decimalPlaces > 0) {
+            if (decimalPlaces > 3)
+                decimalPlaces = 3;
+            timeString += ".";
+            timeString += formatNumber(
+                    Math.floor((msToShow % 1000) / Math.pow(10, 3 - decimalPlaces)),
+                    decimalPlaces, true);
+        }
+
+        return timeString;
     }
 
     /* formatValue: format the current value on the clock as a string.
@@ -167,55 +233,21 @@ class Clock {
      * decimalPlaces: the number of digits to show after the decimal point.
      * This is capped within the range 0-3. If it's 0, no decimal point is
      * shown.
+     *
+     * allowHoursField: decide what to do if formatCode <= 4 and the value on
+     * the clock is 1 hour or more. If true, display an hours field. If false,
+     * just let the minutes field get as big as it needs to.
      * */
-    formatValue(formatCode, useLeadingZero=false, secondsOnly=false, decimalPlaces=0) {
-        let valueSeconds;
-        let initValueSeconds;
+    formatValue(formatCode, useLeadingZero=false, secondsOnly=false, decimalPlaces=0, allowHoursField=false) {
         let minDigits;
-        let msToShow;
-
-        msToShow = this.getMsToFormat(this.getValueMs(), decimalPlaces);
-
-        valueSeconds = Math.floor(msToShow / 1000);
-        initValueSeconds = Math.floor(this.getMsToFormat(this.initialValueMs, decimalPlaces) / 1000);
-
+        let initValueSeconds = Math.floor(Clock.getMsToFormat(this.initialValueMs, decimalPlaces) / 1000);
         if (formatCode == -1) {
             minDigits = secondsToFormatCode(initValueSeconds);
-        }
-        else if (formatCode == -2) {
-            minDigits = secondsToFormatCode(valueSeconds);
         }
         else {
             minDigits = formatCode;
         }
-
-        let timeString = "";
-
-        if (secondsOnly) {
-            timeString = formatNumber(valueSeconds, minDigits, useLeadingZero);
-        }
-        else {
-            let secondsPart = valueSeconds % 60;
-            let minutesPart = Math.floor(valueSeconds / 60);
-            timeString = formatNumber(secondsPart,
-                    minutesPart > 0 ? 2 : Math.min(minDigits, 2),
-                    useLeadingZero || minDigits > 2 || minutesPart > 0);
-            if (minDigits > 2 || minutesPart > 0) {
-                timeString = ":" + timeString;
-                timeString = formatNumber(minutesPart, Math.max(1, minDigits - 2), useLeadingZero) + timeString;
-            }
-        }
-
-        if (decimalPlaces > 0) {
-            if (decimalPlaces > 3)
-                decimalPlaces = 3;
-            timeString += ".";
-            timeString += formatNumber(
-                    Math.floor((msToShow % 1000) / Math.pow(10, 3 - decimalPlaces)),
-                    decimalPlaces, true);
-        }
-
-        return timeString;
+        return Clock.formatMilliseconds(this.getValueMs(), minDigits, useLeadingZero, secondsOnly, decimalPlaces, allowHoursField);
     }
 
     setDirection(dir) {
