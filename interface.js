@@ -608,6 +608,12 @@ function restoreOptionsFromURL() {
                 let usefulValue = stringValueToUsefulValue(optionsDesc[name], value);
                 optionsValues[name] = usefulValue;
                 setControlFromOptionValue(optionsValues, optionsDesc, name);
+                if (name == "countup") {
+                    /* Have to set this now, not wait until the caller applies
+                     * all the new options, because it affects the behaviour
+                     * of autostart below. */
+                    clock.setDirection(optionsValues[name] ? 1 : -1);
+                }
             }
             else if (name == "menu") {
                 menuOn = stringToBool(value);
