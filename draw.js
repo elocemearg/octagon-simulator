@@ -168,6 +168,12 @@ class ClockDesign {
         this.fontFamily = f;
         this.styleChanged = true;
     }
+
+    /* Default options to apply when this design is selected, if the user
+     * has enabled automatic application of default options. */
+    getDefaultOptionValues() {
+        return {};
+    }
 }
 
 /* A bounding box on a canvas which we define as "dirty". Helps us to remember
@@ -650,6 +656,17 @@ class OctagonCanvasClockDesign extends CanvasClockDesign {
             OCTAGON_INTER_CHAR_SPACE, OCTAGON_BORDER_TO_CHAR_SPACE,
             OCTAGON_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
     }
+
+    getDefaultOptionValues() {
+        return {
+            "showborder" : true,
+            "outlinesize" : 1,
+            "shadowlength" : 3,
+            "shadowdir" : "3",
+            "fgcolor" : [255, 255, 255],
+            "outlinecolor" : [0, 0, 0]
+        };
+    }
 }
 
 class NixieCanvasClockDesign extends CanvasClockDesign {
@@ -657,6 +674,14 @@ class NixieCanvasClockDesign extends CanvasClockDesign {
         super(canvas, canvasContainer, characterDesignUrls[NIXIE_DESIGN_NAME],
             NIXIE_INTER_CHAR_SPACE, NIXIE_BORDER_TO_CHAR_SPACE,
             NIXIE_ASSUMED_SCREEN_HEIGHT, false, finishedCallback);
+    }
+
+    getDefaultOptionValues() {
+        return {
+            "showborder" : true,
+            "outlinesize" : 0,
+            "shadowlength" : 0
+        };
     }
 }
 
@@ -675,5 +700,18 @@ class TeletextCanvasClockDesign extends CanvasClockDesign {
 
     supportsDoubleHeight() {
         return true;
+    }
+
+    getDefaultOptionValues() {
+        return {
+            "showborder" : true,
+            "outlinesize" : 0,
+            "shadowlength" : 0,
+            "clockbgcolor" : [0, 0, 0],
+            "clockbgalpha" : 100,
+            "fgcolor" : [255, 255, 255],
+            "outlinecolor" : [0, 0, 0],
+            "doubleheight" : false,
+        };
     }
 }

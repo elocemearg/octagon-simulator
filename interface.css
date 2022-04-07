@@ -106,7 +106,18 @@ div.presetdesc {
 }
 
 div.menuinstructions {
-    margin-bottom: 8pt;
+    font-size: 8pt;
+    margin-top: 20px;
+    color: grey;
+}
+
+kbd {
+    background-color: #dddddd;
+    color: black;
+    border: 1px solid gray;
+    border-radius: 0.5ex;
+    padding-left: 0.5ex;
+    padding-right: 0.5ex;
 }
 
 div.menusection {
@@ -174,7 +185,6 @@ div.colourtable {
 div.colourcontrol {
     display: inline-block;
     text-align: center;
-    min-width: 70px;
 }
 
 div.colourcontrol div {

@@ -189,4 +189,17 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.div.style.display = "none";
         this.styleChanged = true;
     }
+
+    getDefaultOptionValues() {
+        return {
+            "showborder" : true,
+            "outlinesize" : 0,
+            "shadowlength" : 2,
+            "shadowdir" : "3",
+            "clockbgcolor" : [0, 0, 0],
+            "clockbgalpha" : 70,
+            "fgcolor" : [255, 255, 255],
+            "outlinecolor" : [0, 0, 0]
+        };
+    }
 }

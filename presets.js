@@ -121,9 +121,9 @@ const presetTeletextStopwatch = {
         "shadowlength": 0,
         "scalefactor": 100,
         "xposanchor": "right",
-        "yposanchor": "top",
-        "xpospc": 90,
-        "ypospc": 10,
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
         "bgdisable": false,
         "doubleheight" : false,
         "showpresets": true
@@ -156,16 +156,46 @@ const presetTeletextCountdown = {
         "shadowlength": 0,
         "scalefactor": 100,
         "xposanchor": "right",
-        "yposanchor": "top",
-        "xpospc": 90,
-        "ypospc": 10,
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
         "bgdisable": false,
         "doubleheight" : false,
         "showpresets": true
     }
 };
 
-const presetTeletextStopwatch2 = {
+const presetTeletextRTC = {
+    "name" : "teletextrtc",
+    "imageurl" : "presetimages/teletextrtc.jpg",
+    "desc" : "Real-time clock",
+    "options" : {
+        "countermode":"2",
+        "displayclock":true,
+        "clockdesign":"teletext",
+        "leadingzero":true,
+        "allowhours":true,
+        "showrtcseconds":true,
+        "showtenths":false,
+        "showborder":true,
+        "format":"6",
+        "fgcolor":[255, 255, 0],
+        "clockbgcolor":[0, 0, 0],
+        "clockbgalpha":100,
+        "outlinecolor":[0, 0, 0],
+        "outlinesize":0,
+        "scalefactor":100,
+        "shadowdir":"3",
+        "shadowlength":0,
+        "xposanchor":"right",
+        "yposanchor":"bottom",
+        "xpospc":85,
+        "ypospc":85,
+        "doubleheight":false
+    }
+};
+
+/*const presetTeletextStopwatch2 = {
     "name" : "teletextstopwatch2",
     "imageurl" : "presetimages/teletextstopwatch2.jpg",
     "desc" : "Up from zero",
@@ -191,9 +221,9 @@ const presetTeletextStopwatch2 = {
         "shadowlength": 0,
         "scalefactor": 100,
         "xposanchor": "right",
-        "yposanchor": "top",
-        "xpospc": 90,
-        "ypospc": 10,
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
         "bgdisable": false,
         "doubleheight" : true,
         "showpresets": true
@@ -226,14 +256,14 @@ const presetTeletextCountdown2 = {
         "shadowlength": 0,
         "scalefactor": 100,
         "xposanchor": "right",
-        "yposanchor": "top",
-        "xpospc": 90,
-        "ypospc": 10,
+        "yposanchor": "bottom",
+        "xpospc": 85,
+        "ypospc": 85,
         "bgdisable": false,
         "doubleheight" : true,
         "showpresets": true
     }
-};
+};*/
 
 const presetNixieStopwatch = {
     "name" : "nixiestopwatch",
@@ -371,16 +401,17 @@ const clockPresetBanner = {
             "name" : "Teletext",
             "presets" : [
                 presetTeletextStopwatch,
-                presetTeletextCountdown
+                presetTeletextCountdown,
+                presetTeletextRTC
             ]
         },
-        {
+/*        {
             "name" : "Teletext Double Height",
             "presets" : [
                 presetTeletextStopwatch2,
                 presetTeletextCountdown2
             ]
-        },
+        },*/
         {
             "name" : "Nixie",
             "presets" : [

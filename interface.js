@@ -196,6 +196,12 @@ let optionsDesc = {
         "id" : "doubleheight",
         "category" : "appearance",
         "default" : false
+    },
+    "keepdesignoptions" : {
+        "type" : "radio",
+        "id" : "keepdesignoptions",
+        "category" : "options",
+        "default" : "0"
     }
 };
 let refreshTimer = null;
@@ -766,7 +772,16 @@ function applyMenuVisibilityOptions() {
     setControlFromOptionValue(optionsValues, optionsDesc, "showpresets");
 }
 
-function clockDesignChanged() {
+function applyOptionValues(optVals) {
+    for (let name in optVals) {
+        let value = optVals[name];
+        optionsValues[name] = value;
+        setControlFromOptionValue(optionsValues, optionsDesc, name);
+    }
+}
+
+
+function clockDesignChanged(canApplyDefaults=false) {
     enableSaveButton();
     refreshOptions();
 
@@ -775,6 +790,11 @@ function clockDesignChanged() {
     if (activeClockDesign == null) {
         activeClockDesign = clockDesigns["boring"];
     }
+
+    if (canApplyDefaults && parseInt(optionsValues["keepdesignoptions"]) == 0) {
+        applyOptionValues(activeClockDesign.getDefaultOptionValues());
+    }
+
     applyAppearanceOptions(activeClockDesign);
     applyPositionOptions(activeClockDesign);
 
@@ -1243,9 +1263,9 @@ function initialise() {
     errDiv.innerText = "Loading, please wait...";
 
     /* Start with all menu sections collapsed */
-    hideOptionsSection("position");
+    hideOptionsSection("general");
     hideOptionsSection("format");
-    hideOptionsSection("colourtrim");
+    hideOptionsSection("design");
     hideOptionsSection("export");
     hideOptionsSection("save");
     hideOptionsSection("about");

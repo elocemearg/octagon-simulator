@@ -139,14 +139,14 @@ class Clock {
      * 2.9s shows as 2 if decimalPlaces=0). If the clock is counting downwards
      * we always round up (e.g. 2.1s shows as 3) - this is so that we only
      * display zero when the time has actually run out. */
-    static getMsToFormat(valueMs, decimalPlaces) {
+    static getMsToFormat(valueMs, decimalPlaces, clockDirection) {
         if (decimalPlaces > 3)
             decimalPlaces = 3;
         if (decimalPlaces < 0)
             decimalPlaces = 0;
 
         let divisor = Math.pow(10, 3 - decimalPlaces);
-        if (this.direction < 0) {
+        if (clockDirection < 0) {
             return Math.ceil(valueMs / divisor) * divisor;
         }
         else {
@@ -155,13 +155,14 @@ class Clock {
     }
 
     static formatMilliseconds(valueMs, formatCode, useLeadingZero=false,
-            secondsOnly=false, decimalPlaces=0, allowHoursField=false) {
+            secondsOnly=false, decimalPlaces=0, allowHoursField=false,
+            clockDirection=1) {
         let minDigits;
         let valueSeconds;
         let msToShow;
         let timeString = "";
 
-        msToShow = Clock.getMsToFormat(valueMs, decimalPlaces);
+        msToShow = Clock.getMsToFormat(valueMs, decimalPlaces, clockDirection);
         valueSeconds = Math.floor(msToShow / 1000);
 
         if (formatCode == -2) {
@@ -240,14 +241,16 @@ class Clock {
      * */
     formatValue(formatCode, useLeadingZero=false, secondsOnly=false, decimalPlaces=0, allowHoursField=false) {
         let minDigits;
-        let initValueSeconds = Math.floor(Clock.getMsToFormat(this.initialValueMs, decimalPlaces) / 1000);
+        let initValueSeconds = Math.floor(Clock.getMsToFormat(this.initialValueMs, decimalPlaces, this.direction) / 1000);
         if (formatCode == -1) {
             minDigits = secondsToFormatCode(initValueSeconds);
         }
         else {
             minDigits = formatCode;
         }
-        return Clock.formatMilliseconds(this.getValueMs(), minDigits, useLeadingZero, secondsOnly, decimalPlaces, allowHoursField);
+        return Clock.formatMilliseconds(this.getValueMs(), minDigits,
+            useLeadingZero, secondsOnly, decimalPlaces, allowHoursField,
+            this.direction);
     }
 
     setDirection(dir) {

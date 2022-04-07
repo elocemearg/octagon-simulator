@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="author" content="Graeme Cole">
         <meta name="description" content="On-screen countdown clock mockup">
-        <link rel="stylesheet" type="text/css" href="interface.css?bump=1" />
+        <link rel="stylesheet" type="text/css" href="interface.css?bump=2" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +16,12 @@
         <link rel="icon" type="image/x-icon" href="icons/octagonfavicon32.ico">
     </head>
     <body onload="initialise();">
-        <script src="font.js?bump=1"></script>
-        <script src="draw.js?bump=2"></script>
-        <script src="htmldraw.js?bump=2"></script>
-        <script src="clock.js?bump=2"></script>
-        <script src="presets.js?bump=1"></script>
-        <script src="interface.js?bump=3"></script>
+        <script src="font.js?bump=2"></script>
+        <script src="draw.js?bump=3"></script>
+        <script src="htmldraw.js?bump=3"></script>
+        <script src="clock.js?bump=3"></script>
+        <script src="presets.js?bump=2"></script>
+        <script src="interface.js?bump=4"></script>
 
         <div id="screen">
             <canvas id="canvas"></canvas>
@@ -38,52 +38,6 @@
                     <div class="presetspanel" id="presetspanel"></div>
                 </div>
             </div>
-            <div class="menuinstructions">
-                <div class="sectiontitle">Keyboard shortcuts</div>
-                <table class="menuinstructions" id="clockinstructions">
-                    <tr>
-                        <td>Esc, M</td><td>Show/hide this menu</td>
-                    </tr>
-                    <tr>
-                        <td>S</td><td>Stop/start clock</td>
-                    </tr>
-                    <tr>
-                        <td>R</td><td>Reset clock</td>
-                    </tr>
-                    <tr>
-                        <td>D</td><td>Display on/off</td>
-                    </tr>
-                </table>
-                <table class="menuinstructions" id="counterinstructions" style="display: none;">
-                    <tr>
-                        <td>Esc, M</td><td>Show/hide this menu</td>
-                    </tr>
-                    <tr>
-                        <td>+/&minus;</td><td>Increment/decrement</td>
-                    </tr>
-                    <tr>
-                        <td>R</td><td>Reset to zero</td>
-                    </tr>
-                    <tr>
-                        <td>D</td><td>Display on/off</td>
-                    </tr>
-                </table>
-                <table class="menuinstructions" id="rtcinstructions" style="display: none;">
-                    <tr>
-                        <td>Esc, M</td><td>Show/hide this menu</td>
-                    </tr>
-                    <tr>
-                        <td>S</td><td>&ndash;</td>
-                    </tr>
-                    <tr>
-                        <td>R</td><td>&ndash;</td>
-                    </tr>
-                    <tr>
-                        <td>D</td><td>Display on/off</td>
-                    </tr>
-                </table>
-            </div>
-
             <div class="menusection">
                 <div class="sectiontitle">Mode</div>
                 <div class="sectionbody">
@@ -127,11 +81,14 @@
                 </div>
             </div>
             <div class="menusection">
-                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('position');">
-                    <div class="sectiondropdown" id="positiondropdown">&#x25B6;</div>
-                    Size &amp; position
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('general');">
+                    <div class="sectiondropdown" id="generaldropdown">&#x25B6;</div>
+                    General
                 </div>
-                <div class="sectionbody" id="positionsection">
+                <div class="sectionbody" id="generalsection">
+                    <div class="menurow">
+                        <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display on</label>
+                    </div>
                     <div class="menurow">
                         <select id="xposanchor" name="xposanchor" onchange="positionChanged();">
                             <option value="left">Left edge</option>
@@ -150,18 +107,62 @@
                         Final scale factor
                         <input type="number" id="scalefactor" oninput="positionChanged();" />%
                     </div>
+                    <div class="menurow">
+                        <input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#00b140" />
+                        <label for="bgcolor">Page background colour</label>
+                    </div>
+                    <div class="menurow">
+                        <input type="checkbox" name="bgdisable" id="bgdisable" onclick="appearanceChanged();" /><label for="bgdisable">Disable page background colour</label>
+                    </div>
                 </div>
             </div>
 
             <div class="menusection">
                 <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('format');">
                     <div class="sectiondropdown" id="formatdropdown">&#x25B6;</div>
-                    Format &amp; display
+                    Format
                 </div>
                 <div class="sectionbody" id="formatsection">
+                    <div class="menurow clockmodecontrols">
+                        <label for="format">Display format</label>
+                        <select name="format" id="format" onchange="optionsChanged();">
+                            <option value="-1" selected>Automatic from start time</option>
+                            <option value="-2">Automatic from current time</option>
+                            <option value="1">s</option>
+                            <option value="2">ss</option>
+                            <option value="3">m:ss</option>
+                            <option value="4">mm:ss</option>
+                            <option value="5">h:mm:ss</option>
+                            <option value="6">hh:mm:ss</option>
+                        </select>
+                    </div>
+                    <div class="menurow countermodecontrols">
+                        <label for="counterwidth">Pad to </label><input type="number" id="counterwidth" name="counterwidth" min="0" max="10" onclick="optionsChanged();" /><label for="counterwidth"> characters</label>
+                    </div>
+                    <div class="menurow">
+                        <input type="checkbox" id="leadingzero" name="leadingzero" onclick="optionsChanged();" /><label for="leadingzero">Leading zero</label>
+                    </div>
+                    <div class="menurow clockmodecontrols">
+                        <input type="checkbox" id="allowhours" name="allowhours" onclick="optionsChanged();" checked /><label for="allowhours">Allow hours field</label>
+                    </div>
+                    <div class="menurow rtcmodecontrols">
+                        <input type="checkbox" id="showrtcseconds" name="showrtcseconds" onclick="optionsChanged();" /><label for="showrtcseconds">Show seconds</label>
+                    </div>
+                    <div class="menurow clockmodecontrols rtcmodecontrols">
+                        <input type="checkbox" id="showtenths" name="showtenths" onclick="optionsChanged();" /><label for="showtenths">Show tenths</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menusection">
+                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('design');">
+                    <div class="sectiondropdown" id="designdropdown">&#x25B6;</div>
+                    Design
+                </div>
+                <div class="sectionbody" id="designsection">
                     <div class="menurow">
                         <label for="clockdesign">Design</label>
-                        <select name="clockdesign" id="clockdesign" onchange="clockDesignChanged();">
+                        <select name="clockdesign" id="clockdesign" onchange="clockDesignChanged(true);">
                             <option value="octagon" selected>Octagon</option>
                             <option value="nixie">Nixie tubes</option>
                             <option value="teletext">Teletext</option>
@@ -179,59 +180,18 @@
                             <option value="Questrial" style="font-family: Questrial;">Questrial</option>
                         </select>
                     </div>
-                    <div class="menurow">
-                        <input type="checkbox" id="displayclock" name="displayclock" onclick="optionsChanged();" checked /><label for="displayclock">Display on</label>
-                    </div>
-                    <div class="menurow">
-                        <input type="checkbox" id="showborder" name="showborder" onclick="appearanceChanged();" checked /><label for="showborder">Show border</label>
-                    </div>
-                    <div class="menurow">
-                        <input type="checkbox" id="leadingzero" name="leadingzero" onclick="optionsChanged();" /><label for="leadingzero">Leading zero</label>
-                    </div>
-                    <div class="menurow rtcmodecontrols">
-                        <input type="checkbox" id="showrtcseconds" name="showrtcseconds" onclick="optionsChanged();" /><label for="showrtcseconds">Show seconds</label>
-                    </div>
-                    <div class="menurow clockmodecontrols rtcmodecontrols">
-                        <input type="checkbox" id="showtenths" name="showtenths" onclick="optionsChanged();" /><label for="showtenths">Show tenths</label>
-                    </div>
-                    <div class="menurow doubleheightcontrol">
-                        <input type="checkbox" id="doubleheight" name="doubleheight" onclick="appearanceChanged();" checked /><label for="doubleheight">Double height characters</label>
-                    </div>
-                    <div class="menurow clockmodecontrols">
-                        <input type="checkbox" id="allowhours" name="allowhours" onclick="optionsChanged();" checked /><label for="allowhours">Allow hours field</label>
-                    </div>
-                    <div class="menurow clockmodecontrols">
-                        <label for="format">Display format</label>
-                        <select name="format" id="format" onchange="optionsChanged();">
-                            <option value="-1" selected>Automatic from start time</option>
-                            <option value="-2">Automatic from current time</option>
-                            <option value="1">s</option>
-                            <option value="2">ss</option>
-                            <option value="3">m:ss</option>
-                            <option value="4">mm:ss</option>
-                            <option value="5">h:mm:ss</option>
-                            <option value="6">hh:mm:ss</option>
-                        </select>
-                    </div>
-                    <div class="menurow countermodecontrols">
-                        <label for="counterwidth">Pad to </label><input type="number" id="counterwidth" name="counterwidth" min="0" max="10" onclick="optionsChanged();" /><label for="counterwidth"> characters</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="menusection">
-                <div class="sectiontitle sectiontitleclickable" onclick="toggleOptionsSection('colourtrim');">
-                    <div class="sectiondropdown" id="colourtrimdropdown">&#x25B6;</div>
-                    Colour &amp; trim
-                </div>
-                <div class="sectionbody sectionbodycolourtrim" id="colourtrimsection">
-                    <div class="colourtable">
-                        <div class="colourcontrol">
-                            <div class="colourcontroltitle">Page<br>background</div>
-                            <div class="colourpicker">
-                                <input type="color" name="bgcolor" id="bgcolor" onchange="appearanceChanged();" value="#00b140" />
-                            </div>
+                    <div class="menurow" style="margin-top: 5px; margin-bottom: 10px; margin-left: 20px;">
+                        <div>
+                            When I switch Design:
                         </div>
+                        <div class="radiorow">
+                            <input type="radio" id="dontkeepdesignoptions" name="keepdesignoptions" value="0" onclick="optionsChanged();" checked /><label for="dontkeepdesignoptions">Apply that design's default options below</label>
+                        </div>
+                        <div class="radiorow">
+                            <input type="radio" id="keepdesignoptions" name="keepdesignoptions" value="1" onclick="optionsChanged();" /><label for="keepdesignoptions">Keep the options specified below</label>
+                        </div>
+                    </div>
+                    <div class="menurow colourtable">
                         <div class="colourcontrol bordercolourcontrol">
                             <div class="colourcontroltitle">Clock<br>background</div>
                             <div class="colourpicker">
@@ -250,6 +210,12 @@
                                 <input type="color" name="outlinecolor" id="outlinecolor" onchange="appearanceChanged();" value="#000000" />
                             </div>
                         </div>
+                    </div>
+                    <div class="menurow">
+                        <input type="checkbox" id="showborder" name="showborder" onclick="appearanceChanged();" checked /><label for="showborder">Show border</label>
+                    </div>
+                    <div class="menurow doubleheightcontrol">
+                        <input type="checkbox" id="doubleheight" name="doubleheight" onclick="appearanceChanged();" checked /><label for="doubleheight">Double height characters</label>
                     </div>
                     <table class="colourtrim">
                         <tr class="textoutlinecontrol">
@@ -279,9 +245,6 @@
                             </td>
                         </tr>
                     </table>
-                    <div class="menurow">
-                        <input type="checkbox" name="bgdisable" id="bgdisable" onclick="appearanceChanged();" /><label for="bgdisable">Disable page background colour</label>
-                    </div>
                 </div>
             </div>
             <div class="menusection">
@@ -364,6 +327,26 @@
                 </p>
                 </div>
             </div>
+
+            <div class="menuinstructions">
+                <div id="clockinstructions">
+                    <kbd>Esc</kbd> or <kbd>M</kbd>&nbsp;Menu on/off,
+                    <kbd>S</kbd>&nbsp;Stop/start,
+                    <kbd>R</kbd>&nbsp;Reset,
+                    <kbd>D</kbd>&nbsp;Display on/off
+                </div>
+                <div id="counterinstructions">
+                    <kbd>Esc</kbd> or <kbd>M</kbd>&nbsp;Menu on/off,
+                    <kbd>+</kbd><kbd>-</kbd>&nbsp;Up/down,
+                    <kbd>R</kbd>&nbsp;Zero,
+                    <kbd>D</kbd>&nbsp;Display on/off
+                </div>
+                <div id="rtcinstructions">
+                    <kbd>Esc</kbd> or <kbd>M</kbd>&nbsp;Menu on/off,
+                    <kbd>D</kbd>&nbsp;Display on/off
+                </div>
+            </div>
+
         </div>
     </body>
 </html>
