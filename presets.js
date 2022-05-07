@@ -325,6 +325,7 @@ const presetBoringStopwatch = {
     "name" : "boringstopwatch",
     "imageurl" : "presetimages/boringstopwatch.jpg",
     "desc" : "Up from zero",
+    "mouseover" : "Sometimes you just want vanilla ice cream.",
     "options" : {
         "countermode": "0",
         "displayclock": true,

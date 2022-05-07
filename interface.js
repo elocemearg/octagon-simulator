@@ -1240,6 +1240,9 @@ function loadPresetButtons() {
             presetImageDiv.appendChild(presetButton);
             presetButton.classList.add("presetbutton");
             presetButton.appendChild(presetImage);
+            if (presetInfo["mouseover"]) {
+                presetButton.title = presetInfo["mouseover"];
+            }
             presetImage.src = presetInfo["imageurl"];
             presetImage.alt = presetInfo["desc"];
             presetDescDiv.innerText = presetInfo["desc"];
