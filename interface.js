@@ -189,7 +189,7 @@ let optionsDesc = {
         "type" : "select",
         "id" : "typeface",
         "category" : "appearance",
-        "default" : "Inter"
+        "default" : "Bebas Neue"
     },
     "doubleheight" : {
         "type" : "checkbox",

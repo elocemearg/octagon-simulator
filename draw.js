@@ -69,7 +69,7 @@ class ClockDesign {
         this.shadowDirection = SOUTHEAST;
         this.showBorder = true;
         this.textColour = [ 255, 255, 255 ];
-        this.fontFamily = "Inter";
+        this.fontFamily = "Bebas Neue";
         this.styleChanged = true;
     }
 
