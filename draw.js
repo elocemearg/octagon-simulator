@@ -73,7 +73,7 @@ class ClockDesign {
         this.textColour = [ 255, 255, 255 ];
         this.fontFamily = "Bebas Neue";
         this.styleChanged = true;
-        this.maximiseRatio = 0.7;
+        this.maximiseRatio = 0.75;
     }
 
     drawClock(string) {
