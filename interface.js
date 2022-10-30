@@ -759,8 +759,8 @@ function initialiseOptions() {
         /* First, set this option to the default value... */
         optionsValues[name] = desc["default"];
 
-        /* Then if the control on the form says something different, set it
-         * to that. */
+        /* Then if the control on the form says something different, set the
+         * control on the form to the default. */
         setControlFromOptionValue(optionsValues, optionsDesc, name);
     }
 }
@@ -1048,6 +1048,7 @@ function refreshConfiguration() {
     refreshOptions();
     refreshAppearance();
     refreshPosition();
+    refreshPositionModeControls();
 }
 
 /* Enable the save settings button and set its text to the floppy disk icon
@@ -1110,10 +1111,7 @@ function positionChanged() {
     refreshClock();
 }
 
-function positionModeChanged() {
-    /* Refresh the clock's position... */
-    positionChanged();
-
+function refreshPositionModeControls() {
     /* If auto-centre is enabled, disable the xpos and ypos controls. */
     let manualPosControls = document.getElementsByClassName("manualposcontrol");
     for (let i = 0; i < manualPosControls.length; i++) {
@@ -1125,6 +1123,12 @@ function positionModeChanged() {
     for (let i = 0; i < manualSizeControls.length; i++) {
         manualSizeControls[i].disabled = (optionsValues["positionmode"] === "autocentremax");
     }
+}
+
+function positionModeChanged() {
+    /* Refresh the clock's position... */
+    positionChanged();
+    refreshPositionModeControls();
 }
 
 function switchToPreset(presetName) {
