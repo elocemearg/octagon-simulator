@@ -51,7 +51,7 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.div.style.position = "absolute";
         this.div.style.fontFamily = [ this.fontFamily, "sans-serif" ];
         this.div.style.fontVariantNumeric = "tabular-nums";
-        this.div.style.display = "none"; // don't display anything yet
+        this.div.innerHTML = "0";
         this.container.appendChild(this.div);
 
         this.showBorder = true;
@@ -60,6 +60,7 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.styleChanged = true;
         this.previousStringLength = 0;
         this.applyStyle();
+        this.div.style.display = "none"; // don't display anything yet
     }
 
     setOutline(outlineColour, outlineSize) {
@@ -149,15 +150,16 @@ class HTMLBoxClockDesign extends ClockDesign {
         if (this.autoCentre) {
             let canvasWidth = this.container.clientWidth;
             let canvasHeight = this.container.clientHeight;
-            this.div.style.left = ((canvasWidth - this.div.clientWidth) / 2).toString() + "px";
+            this.div.style.left = (canvasWidth / 2).toString() + "px";
+            this.div.style.top = (canvasHeight / 2).toString() + "px";
             this.div.style.right = null;
-            this.div.style.top = ((canvasHeight - this.div.clientHeight) / 2).toString() + "px";
             this.div.style.bottom = null;
+            this.div.style.transform = "translate(-50%, -50%)";
             if (this.autoMaximise) {
                 let xMax = this.maximiseRatio * canvasWidth / this.div.clientWidth;
                 let yMax = this.maximiseRatio * canvasHeight / this.div.clientHeight;
                 let scaleFactor = Math.min(xMax, yMax);
-                this.div.style.transform = "scale(" + scaleFactor.toString() + ")";
+                this.div.style.transform += " scale(" + scaleFactor.toString() + ")";
             }
         }
         else {
