@@ -6,6 +6,15 @@ let counterModeCheckbox = null;
 let rtcModeCheckbox = null;
 let clockInstructions = null;
 let counterInstructions = null;
+let screenDiv = null;
+let mobileControlsClock = null;
+let mobileControlsCounter = null;
+let mobileControlsRTC = null;
+let fullScreenControls = null;
+let fullScreenButton = null;
+
+let mobileControlDisplay = "block";
+let isFullScreen = false;
 
 let activeClockDesign = null;
 
@@ -13,6 +22,13 @@ let activeClockDesign = null;
  * of the selections in the drop-down list) to ClockDesign objects. */
 let clockDesigns = {};
 
+/* To add a new option:
+ *  - Add a control for it in index.html
+ *  - Add a new entry in optionsDesc describing the type of option, its id,
+ *    category and default - this ensures the option is initialised, saved and
+ *    restored appropriately
+ *  - Add any other code required to act on that option
+ */
 let optionsDesc = {
     "countermode" : {
         "type" : "radio",
@@ -202,6 +218,12 @@ let optionsDesc = {
         "id" : "keepdesignoptions",
         "category" : "options",
         "default" : "0"
+    },
+    "positionmode" : {
+        "type" : "select",
+        "id" : "positionmode",
+        "category" : "position",
+        "default" : "manual"
     }
 };
 let refreshTimer = null;
@@ -344,6 +366,72 @@ function setMenuVisibility(linkId, objectId, showText, hideText, show) {
     else {
         link.innerText = showText;
         obj.style.display = "none";
+    }
+}
+
+function setMainMenuVisibility(visible) {
+    let menu = document.getElementById("menu");
+    let checkbox = document.getElementById("exportmenuon");
+    if (checkbox) {
+        checkbox.checked = visible;
+    }
+    if (menu) {
+        menu.style.display = (visible ? null : "none");
+    }
+}
+
+function toggleMainMenu() {
+    let menu = document.getElementById("menu");
+    setMainMenuVisibility(menu.style.display == "none");
+}
+
+function toggleTouchscreenControls() {
+    if (mobileControlDisplay == "none") {
+        mobileControlDisplay = "block";
+        optionsDesc["positionmode"]["default"] = "autocentremax";
+    }
+    else {
+        mobileControlDisplay = "none";
+        optionsDesc["positionmode"]["default"] = "manual";
+    }
+    changeInterface();
+}
+
+function openFullScreen() {
+    let e = document.documentElement;
+    if (e.requestFullscreen) {
+        e.requestFullscreen();
+    }
+    else if (e.webkitRequestFullscreen) {
+        e.webkitRequestFullscreen();
+    }
+    else if (e.msRequestFullscreen) {
+        e.msRequestFullscreen();
+    }
+    fullScreenButton.innerHTML = "&#x2199;"
+    isFullScreen = true;
+}
+
+function exitFullScreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+    else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    }
+    else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
+    fullScreenButton.innerHTML = "&#x2922;"
+    isFullScreen = false;
+}
+
+function toggleFullScreen() {
+    if (isFullScreen) {
+        exitFullScreen();
+    }
+    else {
+        openFullScreen();
     }
 }
 
@@ -637,14 +725,7 @@ function restoreOptionsFromURL() {
         startTimeChanged();
     }
     if (menuOnGiven) {
-        let menu = document.getElementById("menu");
-        let checkbox = document.getElementById("exportmenuon");
-        if (checkbox) {
-            checkbox.checked = menuOn;
-        }
-        if (menu) {
-            menu.style.display = (menuOn ? null : "none");
-        }
+        setMainMenuVisibility(menuOn);
     }
     if (autoStartGiven && autoStart) {
         let checkbox = document.getElementById("exportstart");
@@ -712,6 +793,17 @@ function arrayLikeConcat(a1, a2) {
     return result;
 }
 
+function changeInterface() {
+    let counterMode = counterModeCheckbox.checked;
+    let rtcMode = rtcModeCheckbox.checked;
+    let clockMode = !(counterMode || rtcMode);
+
+    mobileControlsClock.style.display = (clockMode ? mobileControlDisplay : "none");
+    mobileControlsCounter.style.display = (counterMode ? mobileControlDisplay : "none");
+    mobileControlsRTC.style.display = (rtcMode ? mobileControlDisplay : "none");
+    fullScreenControls.style.display = mobileControlDisplay;
+}
+
 function changeMode() {
     let counterMode = counterModeCheckbox.checked;
     let rtcMode = rtcModeCheckbox.checked;
@@ -757,6 +849,11 @@ function changeMode() {
         setNextSecondTimeout();
     }
 
+    if (activeClockDesign) {
+        activeClockDesign.clearClock(true);
+    }
+
+    changeInterface();
     optionsChanged();
 }
 
@@ -768,10 +865,22 @@ function setClassVisible(className, visible) {
 }
 
 function applyPositionOptions(clockDesign) {
-    clockDesign.setPosition(optionsValues["xpospc"], optionsValues["ypospc"],
-        optionsValues["xposanchor"] === "right",
-        optionsValues["yposanchor"] === "bottom");
-    clockDesign.setScaleFactor(optionsValues["scalefactor"] / 100);
+    if (optionsValues["positionmode"] === "manual") {
+        clockDesign.setPosition(optionsValues["xpospc"],
+            optionsValues["ypospc"],
+            optionsValues["xposanchor"] === "right",
+            optionsValues["yposanchor"] === "bottom");
+    }
+    else {
+        clockDesign.setPositionAutoCentre();
+    }
+
+    if (optionsValues["positionmode"] === "autocentremax") {
+        clockDesign.setAutoMaximise();
+    }
+    else {
+        clockDesign.setScaleFactor(optionsValues["scalefactor"] / 100);
+    }
 }
 
 function applyMenuVisibilityOptions() {
@@ -1001,6 +1110,23 @@ function positionChanged() {
     refreshClock();
 }
 
+function positionModeChanged() {
+    /* Refresh the clock's position... */
+    positionChanged();
+
+    /* If auto-centre is enabled, disable the xpos and ypos controls. */
+    let manualPosControls = document.getElementsByClassName("manualposcontrol");
+    for (let i = 0; i < manualPosControls.length; i++) {
+        manualPosControls[i].disabled = (optionsValues["positionmode"] != "manual");
+    }
+
+    /* If auto-centre and maximise is enabled, disable the scale control. */
+    let manualSizeControls = document.getElementsByClassName("manualsizecontrol");
+    for (let i = 0; i < manualSizeControls.length; i++) {
+        manualSizeControls[i].disabled = (optionsValues["positionmode"] === "autocentremax");
+    }
+}
+
 function switchToPreset(presetName) {
     let presetOptionsValues = getPresetOptionValues(presetName);
     if (presetOptionsValues) {
@@ -1018,12 +1144,16 @@ function switchToPreset(presetName) {
 
 function enableReset() {
     let resetButton = document.getElementById("reset");
+    let mobileResetButton = document.getElementById("mobilereset");
     resetButton.disabled = false;
+    mobileResetButton.disabled = false;
 }
 
 function disableReset() {
     let resetButton = document.getElementById("reset");
+    let mobileResetButton = document.getElementById("mobilereset");
     resetButton.disabled = true;
+    mobileResetButton.disabled = true;
 }
 
 function setPresetButtonsEnabled(enabled) {
@@ -1042,8 +1172,11 @@ function stopClock() {
         }
     }
     let startButton = document.getElementById("start");
+    let mobileStartButton = document.getElementById("mobilestartstop");
     startButton.innerHTML = "&#x25B6; Start";
     startButton.style.backgroundColor = "#ddffdd";
+    mobileStartButton.innerHTML = "&#x25B6;";
+    mobileStartButton.style.backgroundColor = "#ddffdd";
     refreshClock();
     console.log("stopped on " + clock.getValueMs().toString() + "ms");
     setPresetButtonsEnabled(true);
@@ -1057,8 +1190,11 @@ function startStop() {
     else {
         if (clock.getDirection() > 0 || clock.getValueMs() != 0) {
             let startButton = document.getElementById("start");
+            let mobileStartButton = document.getElementById("mobilestartstop");
             startButton.innerHTML = "&#x25FC; Stop";
             startButton.style.backgroundColor = "#ffdddd";
+            mobileStartButton.innerHTML = "&#x25FC;";
+            mobileStartButton.style.backgroundColor = "#ffdddd";
             clock.start();
             setNextSecondTimeout();
             setPresetButtonsEnabled(false);
@@ -1162,6 +1298,19 @@ function initialisePost() {
     let errDiv = document.getElementById("errors");
     try {
         let mins, secs;
+
+        if ("ontouchstart" in document.documentElement) {
+            /* This is a touch screen. Default to showing the touchscreen
+             * controls, not showing the main menu, and auto-centring and
+             * maximising the clock. */
+            mobileControlDisplay = "block";
+            setMainMenuVisibility(false);
+            optionsDesc["positionmode"]["default"] = "autocentremax";
+        }
+        else {
+            mobileControlDisplay = "none";
+        }
+
         initialiseOptions();
         restoreOptionsFromCookies();
         mins = optionsValues["startminutes"];
@@ -1264,6 +1413,19 @@ function canvasClockLoaded() {
     }
 }
 
+function screenClick(e) {
+    let screenWidth = screenDiv.clientWidth;
+    let screenHeight = screenDiv.clientHeight;
+    let relX = e.clientX / screenWidth;
+    let relY = e.clientY / screenHeight;
+
+    /* If the click or tap is in the left 25% of the top half of the
+     * screen, display the menu. */
+    if (relX < 0.25 && relY < 0.5) {
+        setMainMenuVisibility(true);
+    }
+}
+
 function initialise() {
     let errDiv = document.getElementById("errors");
     let canvasDiv = document.getElementById("screen");
@@ -1294,6 +1456,15 @@ function initialise() {
     rtcInstructions = document.getElementById("rtcinstructions");
     presetsPanelContainer = document.getElementById("presetspanelcontainer");
     togglePresetsLink = document.getElementById("togglepresetslink");
+
+    screenDiv = document.getElementById("screen");
+    screenDiv.addEventListener("click", screenClick);
+
+    mobileControlsClock = document.getElementById("mobilecontrolsclock");
+    mobileControlsCounter = document.getElementById("mobilecontrolscounter");
+    mobileControlsRTC = document.getElementById("mobilecontrolsrtc");
+    fullScreenControls = document.getElementById("fullscreencontrols");
+    fullScreenButton = document.getElementById("fullscreenbutton");
 
     loadPresetButtons();
 }

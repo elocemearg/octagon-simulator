@@ -124,6 +124,24 @@ div.menusection {
     margin-bottom: 8pt;
 }
 
+#menutoprightdiv {
+    position: absolute;
+    float: right;
+    right: 0;
+    top: 0;
+    font-size: 28px;
+}
+
+#menutoprightdiv div {
+    display: inline-block;
+    margin: 5px;
+    font-size: 28px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
 div.menurow {
     margin-left: 10px;
     margin-top: 2px;
@@ -246,4 +264,72 @@ div.sectiondropdown {
 button.settingsbutton {
     margin-left: 1em;
     font-size: 12pt;
+}
+
+div.mobilecontrolbuttoncontainer button {
+    height: 10vh;
+    font-size: 8vmin;
+    opacity: 60%;
+    touch-action: manipulation;
+}
+
+div.mobilecontrols {
+    display: none;
+}
+
+div.fullscreencontrols {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 5px;
+    text-align: center;
+}
+
+@media screen and (orientation: portrait) {
+    div.mobilecontrols {
+        display: block;
+        position: absolute;
+        left: 0;
+        width: 100%;
+        bottom: 5%;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    div.mobilecontrolbuttoncontainer {
+        display: inline-block;
+    }
+
+    div.mobilecontrolbuttoncontainer button {
+        margin-top: 1vw;
+        margin-bottom: 1vw;
+        width: 20vw;
+    }
+}
+
+@media screen and (orientation: landscape) {
+    div.mobilecontrols {
+        display: block;
+        position: absolute;
+        right: 10px;
+        width: 12vw;
+        bottom: 0;
+    }
+
+    div.mobilecontrolbuttoncontainer {
+        display: block;
+    }
+
+    div.mobilecontrolbuttoncontainer button {
+        margin-top: 1vh;
+        margin-bottom: 1vh;
+        width: 12vw;
+        height: 20vh;
+    }
+}
+
+#fullscreenbutton {
+    width: 12vmin;
+    height: 12vmin;
+    font-size: 5vmin;
 }

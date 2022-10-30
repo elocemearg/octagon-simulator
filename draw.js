@@ -62,7 +62,9 @@ class ClockDesign {
         this.yPosPercent = 85;
         this.xPosRightEdge = true;
         this.yPosBottomEdge = true;
+        this.autoCentre = false;
         this.scaleFactor = 1;
+        this.autoMaximise = false;
         this.outlineColour = [ 0, 0, 0 ];
         this.outlineSize = 1;
         this.shadowLength = 3;
@@ -71,6 +73,7 @@ class ClockDesign {
         this.textColour = [ 255, 255, 255 ];
         this.fontFamily = "Bebas Neue";
         this.styleChanged = true;
+        this.maximiseRatio = 0.7;
     }
 
     drawClock(string) {
@@ -82,11 +85,27 @@ class ClockDesign {
         this.yPosPercent = yPosPercent;
         this.xPosRightEdge = xPosRightEdge;
         this.yPosBottomEdge = yPosBottomEdge;
+        this.autoCentre = false;
+        this.styleChanged = true;
+    }
+
+    setPositionAutoCentre() {
+        /* Automatically centre the clock on the screen, and ignore
+         * xPosPercent, yPosPercent, xPosRightEdge and yPosBottomEdge. */
+        this.autoCentre = true;
         this.styleChanged = true;
     }
 
     setScaleFactor(scaleFactor) {
         this.scaleFactor = scaleFactor;
+        this.autoMaximise = false;
+        this.styleChanged = true;
+    }
+
+    setAutoMaximise() {
+        /* Automatically make the clock fill the screen, with a suitable
+         * margin, and ignore this.scaleFactor. */
+        this.autoMaximise = true;
         this.styleChanged = true;
     }
 
@@ -463,15 +482,23 @@ class CanvasClockDesign extends ClockDesign {
         }
     }
 
-    /* Scale factor by which we scale the canvas we paint, which takes into
-     * account the user setting and the font's assumed screen height relative
-     * to the actual canvas height. */
-    calculateModifiedYScaleFactor() {
-        return this.scaleFactor * this.canvas.height * this.yStretchFactor * (this.doubleHeight ? 2 : 1) / this.fontScreenHeight;
-    }
-
-    calculateModifiedXScaleFactor() {
-        return this.scaleFactor * this.canvas.height / this.fontScreenHeight;
+    /* Return [x scale factor, y scale factor] for the given clock and
+     * destination canvas dimensions. We use this.scaleFactor if
+     * this.autoMaximise is false, and automatically calculate
+     * this.maximiseRatio of the destination canvas height or width as
+     * appropriate if this.autoMaximise is true. */
+    calculateModifiedScaleFactors(clockWidth, clockHeight, canvasWidth, canvasHeight) {
+        if (this.autoMaximise) {
+            let scaleYXRatio = this.yStretchFactor * (this.doubleHeight ? 2 : 1);
+            let maxScaleX = this.maximiseRatio * canvasWidth / clockWidth;
+            let maxScaleY = this.maximiseRatio * canvasHeight / (clockHeight * scaleYXRatio);
+            let sf = Math.min(maxScaleX, maxScaleY);
+            return [ sf, sf * scaleYXRatio ];
+        }
+        else {
+            return [ this.scaleFactor * canvasHeight / this.fontScreenHeight,
+                this.scaleFactor * canvasHeight * this.yStretchFactor * (this.doubleHeight ? 2 : 1) / this.fontScreenHeight ];
+        }
     }
 
     /* Resize the canvas to the width and height of its container, clear the
@@ -492,16 +519,10 @@ class CanvasClockDesign extends ClockDesign {
     drawClock(string) {
 		let destCanvas = this.canvas;
         let canvasContainer = this.canvasContainer;
+        let xstart;
+        let ystart;
 
         this.clearClock();
-
-        let xstart = Math.floor(destCanvas.width * this.xPosPercent / 100.0);
-        let ystart = Math.floor(destCanvas.height * this.yPosPercent / 100.0);
-
-        /* Scale the characters by the ratio of the actual canvas height and
-         * the screen height assumed by the PNG files */
-        let scaleY = this.calculateModifiedYScaleFactor();
-        let scaleX = this.calculateModifiedXScaleFactor();
 
         let destContext = destCanvas.getContext("2d");
 
@@ -585,11 +606,31 @@ class CanvasClockDesign extends ClockDesign {
             finishedContext.drawImage(clockBrushCanvas, padding, padding);
         }
 
-        if (this.yPosBottomEdge) {
-            ystart -= finishedCanvas.height * scaleY;
+        /* Scale the characters by the ratio of the actual canvas height and
+         * the screen height assumed by the PNG files, or make the clock
+         * take up this.maximiseRatio of the screen width or height if
+         * auto-maximise is enabled. */
+        let scaleXY = this.calculateModifiedScaleFactors(finishedCanvas.width,
+                finishedCanvas.height, destCanvas.width, destCanvas.height);
+
+        let scaleX = scaleXY[0];
+        let scaleY = scaleXY[1];
+
+        if (this.autoCentre) {
+            xstart = destCanvas.width / 2;
+            ystart = destCanvas.height / 2;
+            ystart -= (finishedCanvas.height / 2) * scaleY;
+            xstart -= (finishedCanvas.width / 2) * scaleX;
         }
-        if (this.xPosRightEdge) {
-            xstart -= finishedCanvas.width * scaleX;
+        else {
+            xstart = Math.floor(destCanvas.width * this.xPosPercent / 100.0);
+            ystart = Math.floor(destCanvas.height * this.yPosPercent / 100.0);
+            if (this.yPosBottomEdge) {
+                ystart -= finishedCanvas.height * scaleY;
+            }
+            if (this.xPosRightEdge) {
+                xstart -= finishedCanvas.width * scaleX;
+            }
         }
 
         /* Now take our finished image and draw it onto the destination canvas
@@ -614,8 +655,12 @@ class CanvasClockDesign extends ClockDesign {
              * what's already been painted on. */
             if (!this.canvasDirtyRegion.isClean()) {
                 let context = this.canvas.getContext("2d");
-                let scaleY = this.calculateModifiedYScaleFactor();
-                let scaleX = this.calculateModifiedXScaleFactor();
+                let scaleXY = this.calculateModifiedScaleFactors(
+                    this.canvasDirtyRegion.getWidth(),
+                    this.canvasDirtyRegion.getHeight(),
+                    this.canvas.width, this.canvas.height);
+                let scaleX = scaleXY[0];
+                let scaleY = scaleXY[1];
                 context.setTransform(scaleX, 0, 0, scaleY, 0, 0);
                 context.clearRect(
                     Math.max(0, this.canvasDirtyRegion.getLeft() - 1),

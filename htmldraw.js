@@ -58,6 +58,7 @@ class HTMLBoxClockDesign extends ClockDesign {
         this.clockBackgroundColour = [ 0, 0, 0 ];
         this.clockBackgroundAlpha = 0.7;
         this.styleChanged = true;
+        this.previousStringLength = 0;
         this.applyStyle();
     }
 
@@ -84,7 +85,7 @@ class HTMLBoxClockDesign extends ClockDesign {
     }
 
     applyStyle() {
-        let charHeightPx = this.scaleFactor * this.container.clientHeight / 15;
+        let charHeightPx = (this.autoMaximise ? 1 : this.scaleFactor) * this.container.clientHeight / 15;
         let lengthUnitPx = charHeightPx / 40;
         this.div.style.fontSize = charHeightPx.toString() + "px";
         this.div.style.color = tripleToRGBString(this.textColour);
@@ -143,31 +144,50 @@ class HTMLBoxClockDesign extends ClockDesign {
             }
         }
         this.div.style.textShadow = shadowString;
+        this.div.style.transform = null;
 
-        if (this.xPosRightEdge) {
-            this.div.style.right = (100 - this.xPosPercent).toString() + "%";
-            this.div.style.left = null;
-        }
-        else {
-            this.div.style.left = this.xPosPercent.toString() + "%";
+        if (this.autoCentre) {
+            let canvasWidth = this.container.clientWidth;
+            let canvasHeight = this.container.clientHeight;
+            this.div.style.left = ((canvasWidth - this.div.clientWidth) / 2).toString() + "px";
             this.div.style.right = null;
-        }
-
-        if (this.yPosBottomEdge) {
-            this.div.style.top = null;
-            this.div.style.bottom = (100 - this.yPosPercent).toString() + "%";
+            this.div.style.top = ((canvasHeight - this.div.clientHeight) / 2).toString() + "px";
+            this.div.style.bottom = null;
+            if (this.autoMaximise) {
+                let xMax = this.maximiseRatio * canvasWidth / this.div.clientWidth;
+                let yMax = this.maximiseRatio * canvasHeight / this.div.clientHeight;
+                let scaleFactor = Math.min(xMax, yMax);
+                this.div.style.transform = "scale(" + scaleFactor.toString() + ")";
+            }
         }
         else {
-            this.div.style.top = this.yPosPercent.toString() + "%";
-            this.div.style.bottom = null;
+            if (this.xPosRightEdge) {
+                this.div.style.right = (100 - this.xPosPercent).toString() + "%";
+                this.div.style.left = null;
+            }
+            else {
+                this.div.style.left = this.xPosPercent.toString() + "%";
+                this.div.style.right = null;
+            }
+            if (this.yPosBottomEdge) {
+                this.div.style.top = null;
+                this.div.style.bottom = (100 - this.yPosPercent).toString() + "%";
+            }
+            else {
+                this.div.style.top = this.yPosPercent.toString() + "%";
+                this.div.style.bottom = null;
+            }
         }
         this.styleChanged = false;
     }
 
     drawClock(string) {
-        if (this.styleChanged) {
-            this.applyStyle();
+        if (string.length != this.previousStringLength) {
+            /* If the length of the contents changes, we may need to resize
+             * the box, so redo the style. */
+            this.styleChanged = true;
         }
+        this.previousStringLength = string.length;
 
         if (this.fontFamily != "'Press Start 2P'") {
             /* Replace - with &minus so it looks a bit more minusy, except
@@ -183,6 +203,10 @@ class HTMLBoxClockDesign extends ClockDesign {
         string = replaceWithInvisible(string, " ", "0");
 
         this.div.innerHTML = string;
+
+        if (this.styleChanged) {
+            this.applyStyle();
+        }
     }
 
     clearClock() {

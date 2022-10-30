@@ -4,8 +4,9 @@
         <title>Octagon Simulator</title>
         <meta charset="UTF-8">
         <meta name="author" content="Graeme Cole">
-        <meta name="description" content="On-screen countdown clock mockup">
-        <link rel="stylesheet" type="text/css" href="interface.css?bump=2" />
+        <meta name="description" content="On-screen countdown clock display tool">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="interface.css?bump=3" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,11 +18,11 @@
     </head>
     <body onload="initialise();">
         <script src="font.js?bump=2"></script>
-        <script src="draw.js?bump=3"></script>
-        <script src="htmldraw.js?bump=3"></script>
-        <script src="clock.js?bump=3"></script>
+        <script src="draw.js?bump=4"></script>
+        <script src="htmldraw.js?bump=4"></script>
+        <script src="clock.js?bump=4"></script>
         <script src="presets.js?bump=3"></script>
-        <script src="interface.js?bump=5"></script>
+        <script src="interface.js?bump=6"></script>
 
         <div id="screen">
             <canvas id="canvas"></canvas>
@@ -36,6 +37,10 @@
                 </div>
                 <div class="presetspanelcontainer" id="presetspanelcontainer">
                     <div class="presetspanel" id="presetspanel"></div>
+                </div>
+                <div id="menutoprightdiv">
+                    <div id="menutouchscreenbutton" onclick="toggleTouchscreenControls();" title="Toggle display of touchscreen controls">&#x1f4f1;</div>
+                    <div id="menuclosediv" onclick="setMainMenuVisibility(false);" title="Close menu">×</div>
                 </div>
             </div>
             <div class="menusection">
@@ -108,23 +113,30 @@
                         </label>
                     </div>
                     <div class="menurow">
-                        <select id="xposanchor" name="xposanchor" onchange="positionChanged();">
+                        <select id="positionmode" name="positionmode" onchange="positionModeChanged();">
+                            <option value="manual" selected>Manual position</option>
+                            <option value="autocentre">Auto-centre, manual size</option>
+                            <option value="autocentremax">Auto-centre, auto-maximise</option>
+                        </select>
+                    </div>
+                    <div class="menurow">
+                        <select id="xposanchor" name="xposanchor" class="manualposcontrol" onchange="positionChanged();">
                             <option value="left">Left edge</option>
                             <option value="right" selected>Right edge</option>
                         </select>
-                        <input type="number" id="xpospc" oninput="positionChanged();" />% from left of window
+                        <input type="number" id="xpospc" class="manualposcontrol" oninput="positionChanged();" />% from left of window
                     </div>
                     <div class="menurow">
-                        <select id="yposanchor" name="yposanchor" onchange="positionChanged();">
+                        <select id="yposanchor" name="yposanchor" class="manualposcontrol" onchange="positionChanged();">
                             <option value="top">Top edge</option>
                             <option value="bottom" selected>Bottom edge</option>
                         </select>
-                        <input type="number" id="ypospc" oninput="positionChanged();" />% from top of window
+                        <input type="number" id="ypospc" class="manualposcontrol" oninput="positionChanged();" />% from top of window
                     </div>
                     <div class="menurow">
                         <label title="Scale the size of the finished graphic by a percentage.">
-                            Final scale factor
-                            <input type="number" id="scalefactor" oninput="positionChanged();" />%
+                            Scale factor
+                            <input type="number" id="scalefactor" class="manualsizecontrol" oninput="positionChanged();" />%
                         </label>
                     </div>
                     <div class="menurow">
@@ -411,7 +423,45 @@
                     <kbd>D</kbd>&nbsp;Display on/off
                 </div>
             </div>
+        </div>
 
+        <div class="fullscreencontrols" id="fullscreencontrols">
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="toggleFullScreen();" id="fullscreenbutton">&#x2922;</button>
+            </div>
+        </div>
+
+        <div class="mobilecontrols" id="mobilecontrolsclock">
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="toggleMainMenu();">☰</button>
+            </div>
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="startStop();" id="mobilestartstop">▶</button>
+            </div>
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="resetClock();" id="mobilereset" disabled>↺</button>
+            </div>
+        </div>
+
+        <div class="mobilecontrols" id="mobilecontrolscounter">
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="toggleMainMenu();">☰</button>
+            </div>
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="resetCounter();">0</button>
+            </div>
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="adjustCounter(1);">+</button>
+            </div>
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="adjustCounter(-1);">&minus;</button>
+            </div>
+        </div>
+
+        <div class="mobilecontrols" id="mobilecontrolsrtc">
+            <div class="mobilecontrolbuttoncontainer">
+                <button onclick="toggleMainMenu();">☰</button>
+            </div>
         </div>
     </body>
 </html>
