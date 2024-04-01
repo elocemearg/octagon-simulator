@@ -90,6 +90,12 @@ let optionsDesc = {
         "category" : "options",
         "default" : false
     },
+    "showframes" : {
+        "type" : "checkbox",
+        "id" : "showframes",
+        "category" : "options",
+        "default" : false
+    },
     "showborder" : {
         "type" : "checkbox",
         "id" : "showborder",
@@ -227,6 +233,7 @@ let optionsDesc = {
     }
 };
 let refreshTimer = null;
+const FRAMES_PER_SECOND = 25;
 
 function setBoolFromCheckBox(map, elementId, mapName=null) {
     let element = document.getElementById(elementId);
@@ -777,7 +784,7 @@ function refreshOptions() {
         }
     }
 
-    if (optionsValues["showtenths"] && ((clock.isRunning() && isClockMode()) || isRTCMode())) {
+    if ((optionsValues["showtenths"] || optionsValues["showframes"]) && ((clock.isRunning() && isClockMode()) || isRTCMode())) {
         setNextSecondTimeout();
     }
 }
@@ -982,7 +989,7 @@ function refreshClock() {
         else if (isClockMode()) {
             timeString = clock.formatValue(parseInt(optionsValues["format"]),
                 optionsValues["leadingzero"], false,
-                optionsValues["showtenths"] ? 1 : 0,
+                optionsValues["showframes"] ? -FRAMES_PER_SECOND : (optionsValues["showtenths"] ? 1 : 0),
                 optionsValues["allowhours"]);
         }
         else if (isRTCMode()) {
@@ -990,8 +997,8 @@ function refreshClock() {
             let ms = d.getHours() * 3600000 + d.getMinutes() * 60000 + d.getSeconds() * 1000 + d.getMilliseconds();
             timeString = Clock.formatMilliseconds(ms, 6,
                 optionsValues["leadingzero"], false,
-                optionsValues["showtenths"] ? 1 : 0, true);
-            if (!optionsValues["showtenths"] && !optionsValues["showrtcseconds"]) {
+                optionsValues["showframes"] ? -FRAMES_PER_SECOND : (optionsValues["showtenths"] ? 1 : 0), true);
+            if (!optionsValues["showtenths"] && !optionsValues["showrtcseconds"] && !optionsValues["showframes"]) {
                 /* If the user doesn't want seconds, take the seconds off */
                 timeString = timeString.substring(0, timeString.length - 3);
             }
@@ -1011,7 +1018,13 @@ function refreshClock() {
 
 function setNextSecondTimeout() {
     let ms;
-    let timeoutInterval = optionsValues["showtenths"] ? 100 : 1000;
+    let timeoutInterval;
+    if (optionsValues["showframes"])
+        timeoutInteval = 1000 / FRAMES_PER_SECOND;
+    else if (optionsValues["showtenths"])
+        timeoutInterval = 100;
+    else
+        timeoutInterval = 1000;
 
     if (isRTCMode()) {
         let d = new Date();
@@ -1445,11 +1458,13 @@ function initialise() {
     hideOptionsSection("save");
     hideOptionsSection("about");
 
-    numCanvasClocks = 3;
+    numCanvasClocks = 4;
     clockDesigns["octagon"] = new OctagonCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     clockDesigns["nixie"] = new NixieCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     clockDesigns["teletext"] = new TeletextCanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
+    clockDesigns["mode7"] = new Mode7CanvasClockDesign(canvas, canvasDiv, canvasClockLoaded);
     clockDesigns["boring"] = new HTMLBoxClockDesign(canvasDiv, "htmlclock");
+
     activeClockDesign = clockDesigns["octagon"];
 
     countControl = document.getElementById("count");

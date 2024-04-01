@@ -162,7 +162,13 @@ class Clock {
         let msToShow;
         let timeString = "";
 
-        msToShow = Clock.getMsToFormat(valueMs, decimalPlaces, clockDirection);
+        if (decimalPlaces < 0) {
+            /* Show fractions of a second as if this is the denominator. */
+            msToShow = Clock.getMsToFormat(valueMs, 3, clockDirection);
+        }
+        else {
+            msToShow = Clock.getMsToFormat(valueMs, decimalPlaces, clockDirection);
+        }
         valueSeconds = Math.floor(msToShow / 1000);
 
         if (formatCode == -2) {
@@ -211,6 +217,10 @@ class Clock {
                     Math.floor((msToShow % 1000) / Math.pow(10, 3 - decimalPlaces)),
                     decimalPlaces, true);
         }
+        else if (decimalPlaces < 0) {
+            timeString += ":";
+            timeString += formatNumber(Math.floor(-decimalPlaces * (msToShow % 1000) / 1000), 2, true);
+        }
 
         return timeString;
     }
@@ -233,7 +243,8 @@ class Clock {
      *
      * decimalPlaces: the number of digits to show after the decimal point.
      * This is capped within the range 0-3. If it's 0, no decimal point is
-     * shown.
+     * shown. If it's negative, we show subseconds as the numerator of the
+     * fraction if the denominator is -decimalPlaces.
      *
      * allowHoursField: decide what to do if formatCode <= 4 and the value on
      * the clock is 1 hour or more. If true, display an hours field. If false,
@@ -241,7 +252,7 @@ class Clock {
      * */
     formatValue(formatCode, useLeadingZero=false, secondsOnly=false, decimalPlaces=0, allowHoursField=false) {
         let minDigits;
-        let initValueSeconds = Math.floor(Clock.getMsToFormat(this.initialValueMs, decimalPlaces, this.direction) / 1000);
+        let initValueSeconds = Math.floor(Clock.getMsToFormat(this.initialValueMs, decimalPlaces < 0 ? 3 : decimalPlaces, this.direction) / 1000);
         if (formatCode == -1) {
             minDigits = secondsToFormatCode(initValueSeconds);
         }

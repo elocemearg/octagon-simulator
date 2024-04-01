@@ -16,6 +16,12 @@ const TELETEXT_INTER_CHAR_SPACE = 0;
 const TELETEXT_BORDER_TO_CHAR_SPACE = 0;
 const TELETEXT_ASSUMED_SCREEN_HEIGHT = 1800;
 
+/* Class: Mode7CanvasClockDesign */
+const MODE7_DESIGN_NAME = "mode7";
+const MODE7_INTER_CHAR_SPACE = 0;
+const MODE7_BORDER_TO_CHAR_SPACE = 0;
+const MODE7_ASSUMED_SCREEN_HEIGHT = 1000;
+
 const directionToXY = [
     [  0, -1 ], // north
     [  1, -1 ], // northeast
@@ -735,7 +741,37 @@ class TeletextCanvasClockDesign extends CanvasClockDesign {
         super(canvas, canvasContainer, characterDesignUrls[TELETEXT_DESIGN_NAME],
             TELETEXT_INTER_CHAR_SPACE, TELETEXT_BORDER_TO_CHAR_SPACE,
             TELETEXT_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
+        this.doubleHeight = false;
         this.yStretchFactor = 3/2;
+    }
+
+    supportsClockBackground() {
+        return true;
+    }
+
+    supportsDoubleHeight() {
+        return true;
+    }
+
+    getDefaultOptionValues() {
+        return {
+            "showborder" : true,
+            "outlinesize" : 0,
+            "shadowlength" : 0,
+            "clockbgcolor" : [0, 0, 0],
+            "clockbgalpha" : 100,
+            "fgcolor" : [255, 255, 255],
+            "outlinecolor" : [0, 0, 0],
+            "doubleheight" : false,
+        };
+    }
+}
+
+class Mode7CanvasClockDesign extends CanvasClockDesign {
+    constructor(canvas, canvasContainer, finishedCallback) {
+        super(canvas, canvasContainer, characterDesignUrls[MODE7_DESIGN_NAME],
+            MODE7_INTER_CHAR_SPACE, MODE7_BORDER_TO_CHAR_SPACE,
+            MODE7_ASSUMED_SCREEN_HEIGHT, true, finishedCallback);
         this.doubleHeight = false;
     }
 

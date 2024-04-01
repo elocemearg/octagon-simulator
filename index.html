@@ -206,6 +206,12 @@
                             Show tenths
                         </label>
                     </div>
+                    <div class="menurow clockmodecontrols rtcmodecontrols">
+                        <label title="Display 25ths of a second.">
+                            <input type="checkbox" id="showframes" name="showframes" onclick="optionsChanged();" />
+                            Show 25ths of a second
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -222,6 +228,7 @@
                                 <option value="octagon" selected>Octagon</option>
                                 <option value="nixie">Nixie tubes</option>
                                 <option value="teletext">Teletext</option>
+                                <option value="mode7">Teletext Mode 7</option>
                                 <option value="boring">Boring</option>
                             </select>
                         </label>
